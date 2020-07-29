@@ -4,20 +4,13 @@ let headingCount;
 
 
 //Pieces look up table symbol
-const symbolLUT = {
+const pieces = {
     king: '♚',
     queen: '♛',
     bishop: '♝',
     knight: '♞',
     rook: '♜',
     pawn: '♟'
-}
-
-class Coordinate {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-    }
 }
 
 class ChessPiece {
@@ -36,25 +29,30 @@ class ChessPiece {
     }
     
     // Removes the div from the containing chessbox
-    removePiece() {
-        let currentContainer = this.getContainerElement();
-        let piece = currentContainer.childNodes[0];
-        currentContainer.removeChild(piece);
-    }
+    // removePiece() {
+    //     let currentContainer = this.getContainerElement();
+    //     let piece = currentContainer.childNodes[0];
+    //     currentContainer.removeChild(piece);
+    // }
 
 }
 
 class King extends ChessPiece {
 
-    static get symbol() {
-        return 'king'
+    // static get symbol() {
+    //     return 'king'
+    // }
+
+    // constructor(rowIndex, columnIndex, color) {
+    //     super(rowIndex, columnIndex, color);
+
+    //     this.symbol = 'king'
+    // }
+
+    constructor(){
+
     }
 
-    constructor(rowIndex, columnIndex, color) {
-        super(rowIndex, columnIndex, color);
-
-        this.symbol = 'king'
-    }
 }
 class Queen extends ChessPiece {
     constructor(rowIndex, columnIndex, color) {
@@ -225,10 +223,12 @@ class Board1 {
 
 class Board {
 
-    static get initialState() {
+    get initialState() {
         return [
             ['LR', 'LK', 'LB', 'Q', 'K', 'RK', 'KB', 'KR'],
             ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+            ['0', '0', '0', '0', '0', '0', '0', '0'],
+            ['0', '0', '0', '0', '0', '0', '0', '0'],
             ['0', '0', '0', '0', '0', '0', '0', '0'],
             ['0', '0', '0', '0', '0', '0', '0', '0'],
             ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
@@ -239,8 +239,46 @@ class Board {
         this.currentState = this.initialState;
     }
 
-    draw() {
+    //Variables
+    get from(){
+        return this._from;
+    }
+    set from(value){
+        this._from = value;
+    }
+    get to(){
+        return this._to;
+    }
+    set to(value){
+        this._to = value;
+    }
 
+    draw() {
+        let chessboxArray = Array.from(document.getElementsByClassName("chessbox"));
+        for(let i=0;i<8;i++){
+            for(let j=0;j<8;j++){
+                let piece = document.createElement("div");
+
+                if(this.currentState[i][j] !== "0"){
+                    piece.innerText = this.currentState[i][j];
+                    //this finds the div that has data-column-index === j and data-row-index === i
+                    let chessbox = chessboxArray.find(element => element.dataset.rowIndex === i.toString() && element.dataset.columnIndex === j.toString());
+                    chessbox.appendChild(piece);
+                }else{
+                    let chessbox = chessboxArray.find(element => element.dataset.rowIndex === i.toString() && element.dataset.columnIndex === j.toString());
+                    chessbox.innerHTML="";
+                }
+            }
+        }
+    }
+    clear(){
+        let chessboxArray = Array.from(document.getElementsByClassName("chessbox"));
+        for(let i=0;i<8;i++){
+            for(let j=0;j<8;j++){
+                    let chessbox = chessboxArray.find(element => element.dataset.rowIndex === i.toString() && element.dataset.columnIndex === j.toString());
+                    chessbox.innerHTML="";
+                }
+            }
     }
 
     init() {
@@ -271,7 +309,25 @@ class Board {
             }
             chessbox.dataset.rowIndex = columnIndex;
             chessbox.addEventListener("click", () =>{
-                alert(chessbox.dataset.columnIndex + " "+ chessbox.dataset.rowIndex);
+                if(this._from === undefined){
+                    chessbox.classList.add("selected");
+                    this._from = [parseInt(chessbox.dataset.rowIndex),parseInt(chessbox.dataset.columnIndex)];
+                    console.log(this._from);
+                }else if(this._from !== undefined){
+                    chessbox.classList.add("selected");
+                    this._to = [parseInt(chessbox.dataset.rowIndex),parseInt(chessbox.dataset.columnIndex)];
+                    console.log("to:"+this._to);
+                    console.log("new from: "+ this._from);
+                    this.currentState[this._to[0]][this._to[1]] = this.currentState[this._from[0]][this._from[1]];
+                    this.currentState[this._from[0]][this._from[1]] = "0";
+                    this._from = undefined;
+                    this._to = undefined;
+                    this.clear();
+                    this.draw();
+                    
+                    let selectedChessboxes = Array.from(document.getElementsByClassName("selected"));
+                    selectedChessboxes.forEach(element => element.classList.remove("selected"));
+                }
             });
 
             chessboard.appendChild(chessbox);
@@ -286,9 +342,7 @@ class Board {
         }
         container.appendChild(chessboard);
         document.body.appendChild(container);
-        let board = new Board();
-        board.init();
-        console.log(board.boardState);
+        // console.log(curre);
         return;
     }
 }
@@ -297,6 +351,7 @@ function app() {
 
     let game = new Board();
     game.generateBoard();
+    game.draw();
 
 }
 
