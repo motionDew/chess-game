@@ -1,5 +1,30 @@
-
 let seconds = 0;
+let blackPiecesObject;
+let whitePiecesObject;
+
+//Pieces look up table symbol
+const symbolLUT = {
+    king: '♚',
+    queen: '♛',
+    bishop: '♝',
+    knight: '♞',
+    rook: '♜',
+    pawn: '♟'
+}
+
+let startCounting = setInterval(countdown,1000);
+
+let timerScreen;
+let headingCount;
+
+window.onload = function(){
+    timerScreen = document.createDocumentFragment();
+    headingCount = document.createElement("H1");
+    headingCount.className = "counter";
+    timerScreen.appendChild(headingCount);
+    headingCount.innerText = seconds;
+    document.body.appendChild(timerScreen);
+}
 
 function generateBoard(){
     let container = document.createDocumentFragment();
@@ -33,6 +58,9 @@ function generateBoard(){
     }
     container.appendChild(chessboard);
     document.body.appendChild(container);
+    let board = new Board();
+    board.init();
+    console.log(board.boardState);
     return;
 }
 
@@ -44,64 +72,10 @@ function countdown(){
         document.body.removeChild(headingCount);
         clearInterval(startCounting);
         generateBoard();
-        // generateChessPiece();
     }
 }
 
-let startCounting = setInterval(countdown,1000);
 
-let timerScreen;
-let headingCount;
-
-window.onload = function(){
-    timerScreen = document.createDocumentFragment();
-    headingCount = document.createElement("H1");
-    headingCount.className = "counter";
-    timerScreen.appendChild(headingCount);
-    headingCount.innerText = seconds;
-    document.body.appendChild(timerScreen);
-}
-
-var matrix = [];
-for(var i=0; i<9; i++) {
-    matrix[i] = [];
-    for(var j=0; j<9; j++) {
-        matrix[i][j] = undefined;
-    }
-}
-
-matrix = 
-[
-    ['♜','♞','♝','♛','♚','♝','♞','♜'],
-    ['♟','♟','♟','♟','♟','♟','♟','♟'],
-    ['','','','','','','',''],
-    ['','','','','','','',''],
-    ['','','','','','','',''],
-    ['','','','','','','',''],
-    ['♟','♟','♟','♟','♟','♟','♟','♟'],
-    ['♜','♞','♝','♚','♛','♝','♞','♜'],
-]
-
-
-
-function generateBlackPieces(){   
-    
-}
-
-function generateWhitePieces(){   
-    
-}
-
-//Pieces look up table symbol
-
-const symbolLUT = {
-    king: '♚',
-    queen: '♛',
-    bishop: '♝',
-    knight: '♞',
-    rook: '♜',
-    pawn: '♟'
-}
 
 class Coordinate{
     constructor(x,y){
@@ -111,13 +85,14 @@ class Coordinate{
 }
 
 class ChessPiece{
-    constructor(symbol,rowIndex,columnIndex,color){
+    constructor(symbol,rowIndex,columnIndex,color,status){
         if(new.target === ChessPiece){
-            // throw new TypeError("Cannot construct ChessPiece instances  directly!");
+            throw new TypeError("Cannot construct ChessPiece instances  directly!");
         }
         this.symbol = symbol;
         this.coordinate = new Coordinate(rowIndex,columnIndex);
         this.color = color;
+        this.status = status;
         this.putPiece(this.coordinate.x,this.coordinate.y);
     }
 
@@ -148,7 +123,7 @@ class ChessPiece{
         childContainer.appendChild(pieceDiv);
         }else{
             console.log("Occupied!");
-            return;
+            return 1;
         }
     }
 
@@ -167,64 +142,114 @@ class ChessPiece{
         currentContainer.removeChild(piece);
     }
 
-    // get rowIndex(){
-    //     return this._rowIndex;
-    // }
-
-    // set rowIndex(value){
-    //     this._rowIndex = value;
-    // }
-
-    // get columnIndex(){
-    //     return this._columnIndex;
-    // }
-
-    // set columnIndex(value){
-    //     this._columnIndex = value;
-    // }
-
-    // changeCoordinate(rowIndex,columnIndex){
-    //     this.coordinate.x = rowIndex;
-    //     this.coordinate.y = columnIndex;
-    // }
-
 }
 
 class King extends ChessPiece{
     constructor(rowIndex,columnIndex,color){
-        super("king",rowIndex,columnIndex,color);
+        super("king",rowIndex,columnIndex,color,"alive");
     }
 }
 class Queen extends ChessPiece{
     constructor(rowIndex,columnIndex,color){
-        super("queen",rowIndex,columnIndex,color);
+        super("queen",rowIndex,columnIndex,color,"alive");
     }
 }
 class Bishop extends ChessPiece{
     constructor(rowIndex,columnIndex,color){
-        super("bishop",rowIndex,columnIndex,color);
+        super("bishop",rowIndex,columnIndex,color,"alive");
     }
 }
 class Knight extends ChessPiece{
     constructor(rowIndex,columnIndex,color){
-        super("knight",rowIndex,columnIndex,color);
+        super("knight",rowIndex,columnIndex,color,"alive");
     }
 }
 class Rook extends ChessPiece{
     constructor(rowIndex,columnIndex,color){
-        super("rook",rowIndex,columnIndex,color);
+        super("rook",rowIndex,columnIndex,color,"alive");
     }
 }
 class Pawn extends ChessPiece{
     constructor(rowIndex,columnIndex,color){
-        super("pawn",rowIndex,columnIndex,color);
+        super("pawn",rowIndex,columnIndex,color,"alive");
     }
 }
 
 
-class BlackSide {
+
+class Board {
+
+    boardState = [];
+
     constructor(){
-        this.score = 0;
-        // piece
+
+    }
+
+    init(){
+        for(let i=0;i<8;i++){
+            this.boardState[i] = [];
+            for(let j=0;j<8;j++){
+                this.boardState[i][j] = 0;
+            }
+        }
+        this.generatePieces();
+        for(let key in blackPiecesObject){
+            this.boardState[blackPiecesObject[key].coordinate.y][blackPiecesObject[key].coordinate.x] = blackPiecesObject[key];
+        }
+        for(let key in whitePiecesObject){
+            this.boardState[whitePiecesObject[key].coordinate.y][whitePiecesObject[key].coordinate.x] = whitePiecesObject[key];
+        }
+    }
+
+    generatePieces(){
+        blackPiecesObject = {
+            rookLeft: new Rook("0","0","black"),
+            knightLeft: new Knight("1","0","black"),
+            bishopLeft: new Bishop("2","0","black"),
+            queen: new Queen("3","0","black"),
+            king: new King("4","0","black"),
+            bishopRight: new Bishop("5","0","black"),
+            knightRight: new Knight("6","0","black"),
+            rookRight: new Rook("7","0","black"),
+            pawn1: new Pawn("0","1","black"),
+            pawn2: new Pawn("1","1","black"),
+            pawn3: new Pawn("2","1","black"),
+            pawn4: new Pawn("3","1","black"),
+            pawn5: new Pawn("4","1","black"),
+            pawn6: new Pawn("5","1","black"),
+            pawn7: new Pawn("6","1","black"),
+            pawn8: new Pawn("7","1","black")
+        }
+        whitePiecesObject = {
+            rookLeft: new Rook("0","7","white"),
+            knightLeft: new Knight("1","7","white"),
+            bishopLeft:new Bishop("2","7","white"),
+            queen: new Queen("4","7","white"),
+            king: new King("3","7","white"),
+            bishopRight: new Bishop("5","7","white"),
+            knightRight: new Knight("6","7","white"),
+            rookRight: new Rook("7","7","white"),
+            pawn1: new Pawn("0","6","white"),
+            pawn2: new Pawn("1","6","white"),
+            pawn3: new Pawn("2","6","white"),
+            pawn4: new Pawn("3","6","white"),
+            pawn5: new Pawn("4","6","white"),
+            pawn6: new Pawn("5","6","white"),
+            pawn7: new Pawn("6","6","white"),
+            pawn8: new Pawn("7","6","white")
+        }
     }
 }
+
+class Game{
+    constructor(board){
+        this.board = board;
+    }
+
+    start(){
+
+    }
+}
+
+
+// EVENT LISTENERS
