@@ -4,28 +4,27 @@
     margin: 20px;
     border: 25px solid #333;
 }
-.checkbox{
+.chessbox{
     height: 80px;
     width: 80px;
     font-size: 40px;
 }
 
-.black{
+.black-square{
     float: left;
-    background: black;
+    background: rgb(87, 87, 87);
     text-align:center;
     display: table-cell;
     vertical-align:middle;
-    color: white;
 }
 
-.white{
+.white-square{
     float: left;
     background: burlywood;
     text-align:center;
     display: table-cell;
     vertical-align:middle;
-    color: black;
+
 }
 
 .counter{
@@ -35,4 +34,10 @@
     font-size: 50px;
     width: 100%;
     margin: 10px;
+}
+.black{
+    color: black;
+}
+.white{
+    color: white;
 }
