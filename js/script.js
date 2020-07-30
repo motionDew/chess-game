@@ -13,12 +13,22 @@ const pieces = {
     pawn: '♟'
 }
 
+
+// Pieces classes
+
 class ChessPiece {
-    constructor(team) {
+    constructor(color) {
         if (new.target === ChessPiece) {
             throw new TypeError("Cannot construct ChessPiece instances  directly!");
         }
-        this.team = team;
+        this.color = color;
+    }
+
+    get color(){
+        return this._color;
+    }
+    set color(value){
+        this._color = value;
     }
 
     // Gets the div where the piece is placed.
@@ -27,212 +37,83 @@ class ChessPiece {
         let childContainer = container.find(box => box.dataset.columnIndex === this.coordinate.x && box.dataset.rowIndex === this.coordinate.y);
         return childContainer;
     }
-    
-    // Removes the div from the containing chessbox
-    // removePiece() {
-    //     let currentContainer = this.getContainerElement();
-    //     let piece = currentContainer.childNodes[0];
-    //     currentContainer.removeChild(piece);
-    // }
-
 }
 
 class King extends ChessPiece {
-
-    // static get symbol() {
-    //     return 'king'
-    // }
-
-    // constructor(rowIndex, columnIndex, color) {
-    //     super(rowIndex, columnIndex, color);
-
-    //     this.symbol = 'king'
-    // }
-
-    constructor(){
-
+    constructor(color){
+        super(color);
     }
 
+    get symbol(){
+        return "♚";
+    }
 }
 class Queen extends ChessPiece {
-    constructor(rowIndex, columnIndex, color) {
-        super("queen", rowIndex, columnIndex, color, "alive");
+    constructor(color){
+        super(color);
+    }
+
+    get symbol(){
+        return "♛";
     }
 }
 class Bishop extends ChessPiece {
-    constructor(rowIndex, columnIndex, color) {
-        super("bishop", rowIndex, columnIndex, color, "alive");
+    constructor(color){
+        super(color);
+    }
+
+    get symbol(){
+        return "♝";
     }
 }
 class Knight extends ChessPiece {
-    constructor(rowIndex, columnIndex, color) {
-        super("knight", rowIndex, columnIndex, color, "alive");
+    constructor(color){
+        super(color);
+    }
+
+    get symbol(){
+        return "♞";
     }
 }
 class Rook extends ChessPiece {
-    constructor(rowIndex, columnIndex, color) {
-        super("rook", rowIndex, columnIndex, color, "alive");
+    constructor(color){
+        super(color);
+    }
+
+    get symbol(){
+        return "♜";
     }
 }
 class Pawn extends ChessPiece {
-    constructor(rowIndex, columnIndex, color) {
-        super("pawn", rowIndex, columnIndex, color, "alive");
+    constructor(color){
+        super(color);
     }
+
+    get symbol(){
+        return "♟";
+    }
+
+    legalMove(){
+
+    }
+
 }
 
-class Board1 {
 
-    static get initialState() {
-        return [
-            ['R', 'H', 'WB'],
-            ['P'],
-            [null, null]
-        ]
-    }
-
-    boardState = [];
-
-    constructor(state = Board.initialState) {
-
-        this.currentState = state;
-
-        this.init()
-    }
-
-    init() {
-        for (let i = 0; i < 8; i++) {
-            this.boardState[i] = [];
-            for (let j = 0; j < 8; j++) {
-                this.boardState[i][j] = 0;
-            }
-        }
-        this.generatePieces();
-        for (let key in blackPiecesObject) {
-            this.boardState[blackPiecesObject[key].coordinate.y][blackPiecesObject[key].coordinate.x] = blackPiecesObject[key];
-        }
-        for (let key in whitePiecesObject) {
-            this.boardState[whitePiecesObject[key].coordinate.y][whitePiecesObject[key].coordinate.x] = whitePiecesObject[key];
-        }
-    }
-
-    generatePieces() {
-        blackPiecesObject = {
-            rookLeft: new Rook("0", "0", "black"),
-            knightLeft: new Knight("1", "0", "black"),
-            bishopLeft: new Bishop("2", "0", "black"),
-            queen: new Queen("3", "0", "black"),
-            king: new King("4", "0", "black"),
-            bishopRight: new Bishop("5", "0", "black"),
-            knightRight: new Knight("6", "0", "black"),
-            rookRight: new Rook("7", "0", "black"),
-            pawn1: new Pawn("0", "1", "black"),
-            pawn2: new Pawn("1", "1", "black"),
-            pawn3: new Pawn("2", "1", "black"),
-            pawn4: new Pawn("3", "1", "black"),
-            pawn5: new Pawn("4", "1", "black"),
-            pawn6: new Pawn("5", "1", "black"),
-            pawn7: new Pawn("6", "1", "black"),
-            pawn8: new Pawn("7", "1", "black")
-        }
-        whitePiecesObject = {
-            rookLeft: new Rook("0", "7", "white"),
-            knightLeft: new Knight("1", "7", "white"),
-            bishopLeft: new Bishop("2", "7", "white"),
-            queen: new Queen("4", "7", "white"),
-            king: new King("3", "7", "white"),
-            bishopRight: new Bishop("5", "7", "white"),
-            knightRight: new Knight("6", "7", "white"),
-            rookRight: new Rook("7", "7", "white"),
-            pawn1: new Pawn("0", "6", "white"),
-            pawn2: new Pawn("1", "6", "white"),
-            pawn3: new Pawn("2", "6", "white"),
-            pawn4: new Pawn("3", "6", "white"),
-            pawn5: new Pawn("4", "6", "white"),
-            pawn6: new Pawn("5", "6", "white"),
-            pawn7: new Pawn("6", "6", "white"),
-            pawn8: new Pawn("7", "6", "white")
-        }
-    }
-}
-// class Game{
-
-//     constructor(board){
-//         this.board = board;
-//     }
-
-//     start(){
-//         this.generateBoard();
-//     }
-
-//     generateBoard(){
-//         let container = document.createDocumentFragment();
-//         let chessboard = document.createElement("div");
-//         chessboard.className = "chessboard";
-
-//         let paddingflag = 0;
-//         let columnIndex=0;
-
-//         for(let i=0;i<64;i++){
-//             let chessbox = document.createElement("div");
-//             if( (i+paddingflag) % 2 === 0){
-//                 chessbox.className = "chessbox white-square";
-//             }else{
-//                 chessbox.className = "chessbox black-square";
-//             }
-//             chessbox.dataset.columnIndex= i%8;
-//             if(i%8 === 0){
-//                 columnIndex = i/8;
-//             }
-//             chessbox.dataset.rowIndex= columnIndex;
-//             chessboard.appendChild(chessbox);
-
-//             if( (i+1)%8 === 0 ){
-//                 if(paddingflag === 0 ){
-//                     paddingflag = 1;
-//                 }else{
-//                     paddingflag = 0;
-//                 }
-//             }
-//         }
-//         container.appendChild(chessboard);
-//         document.body.appendChild(container);
-//         let board = new Board();
-//         board.init();
-//         console.log(board.boardState);
-//         return;
-//     }
-
-//     // countdown(){
-//     //     if(seconds !== 0){
-//     //         seconds--;
-//     //         headingCount.innerText = seconds;
-//     //     }else{
-//     //         document.body.removeChild(headingCount);
-//     //         clearInterval(startCounter);
-//     //         generateBoard();
-//     //     }
-//     // }
-
-// }
-
-
-// EVENT LISTENERS
-
-// 
-
+// Board drawing
 
 class Board {
 
     get initialState() {
         return [
-            ['LR', 'LK', 'LB', 'Q', 'K', 'RK', 'KB', 'KR'],
-            ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+            [new Rook('black'), new Knight('black'), new Bishop('black'), new Queen('black'), new King('black'), new Bishop('black'), new Knight('black'), new Rook('black')],
+            [new Pawn('black'), new Pawn('black'), new Pawn('black'), new Pawn('black'), new Pawn('black'), new Pawn('black'), new Pawn('black'), new Pawn('black')],
             ['0', '0', '0', '0', '0', '0', '0', '0'],
             ['0', '0', '0', '0', '0', '0', '0', '0'],
             ['0', '0', '0', '0', '0', '0', '0', '0'],
             ['0', '0', '0', '0', '0', '0', '0', '0'],
-            ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
-            ['LR', 'LK', 'LB', 'K', 'Q', 'RK', 'KB', 'KR']
+            [new Pawn('white'), new Pawn('white'), new Pawn('white'), new Pawn('white'), new Pawn('white'), new Pawn('white'), new Pawn('white'), new Pawn('white')],
+            [new Rook('white'), new Knight('white'), new Bishop('white'), new King('white'), new Queen('white'), new Bishop('white'), new Knight('white'), new Rook('white')]
         ]
     }
     constructor() {
@@ -260,7 +141,8 @@ class Board {
                 let piece = document.createElement("div");
 
                 if(this.currentState[i][j] !== "0"){
-                    piece.innerText = this.currentState[i][j];
+                    piece.innerText = this.currentState[i][j].symbol;
+                    piece.className = this.currentState[i][j].color;
                     //this finds the div that has data-column-index === j and data-row-index === i
                     let chessbox = chessboxArray.find(element => element.dataset.rowIndex === i.toString() && element.dataset.columnIndex === j.toString());
                     chessbox.appendChild(piece);
@@ -292,6 +174,8 @@ class Board {
         let paddingflag = 0;
         let columnIndex = 0;
 
+
+        //TODO: refactor so this uses 2 fors
         for (let i = 0; i < 64; i++) {
 
             let chessbox = document.createElement("div");
@@ -309,17 +193,110 @@ class Board {
             }
             chessbox.dataset.rowIndex = columnIndex;
             chessbox.addEventListener("click", () =>{
+
                 if(this._from === undefined){
                     chessbox.classList.add("selected");
                     this._from = [parseInt(chessbox.dataset.rowIndex),parseInt(chessbox.dataset.columnIndex)];
-                    console.log(this._from);
+                    
+                    //Pawn game mechanics:
+                    // check if chessbox is corespondig to a Pawn
+                    if(this.currentState[parseInt(chessbox.dataset.rowIndex)][parseInt(chessbox.dataset.columnIndex)] instanceof Pawn){
+                        //Check the colour in order to make a move suggestion
+                        if(this.currentState[parseInt(chessbox.dataset.rowIndex)][parseInt(chessbox.dataset.columnIndex)].color === "white"){
+                            let chessboxArray = Array.from(document.getElementsByClassName("chessbox"));
+                            //filter the chessbox so only the legal suggestions remain available
+                            //Decide if next suggestion is an Attack or a Move
+                            if(this.currentState[this._from[0]-1][this._from[1]] === "0"){
+                                let possibleMoves = chessboxArray.filter( element => element.dataset.rowIndex === (parseInt(chessbox.dataset.rowIndex)-1).toString() && element.dataset.columnIndex === chessbox.dataset.columnIndex );
+                                //draw the chessbox suggestion in green
+                                possibleMoves.forEach( element => element.classList.add("suggest"));
+                            }else{
+                                let attackSuggestins = chessboxArray.filter(element => 
+                                    (element.dataset.rowIndex === (parseInt(chessbox.dataset.rowIndex)-1).toString() && element.dataset.columnIndex === (parseInt(chessbox.dataset.columnIndex)-1).toString())
+                                    ||
+                                    (element.dataset.rowIndex === (parseInt(chessbox.dataset.rowIndex)-1).toString() && element.dataset.columnIndex === (parseInt(chessbox.dataset.columnIndex)+1).toString()));
+                                attackSuggestins.forEach(element => element.classList.add("attack"));
+                            }
+                        }else{
+                            let chessboxArray = Array.from(document.getElementsByClassName("chessbox"));
+                            if(this.currentState[this._from[0]+1][this._from[1]] === "0"){
+                                let possibleMoves = chessboxArray.filter( element => element.dataset.rowIndex === (parseInt(chessbox.dataset.rowIndex)+1).toString() && element.dataset.columnIndex === chessbox.dataset.columnIndex );
+                                //draw the chessbox suggestion in green
+                                possibleMoves.forEach( element => element.classList.add("suggest"));
+                            }else{
+                                let attackSuggestins = chessboxArray.filter(element => 
+                                    (element.dataset.rowIndex === (parseInt(chessbox.dataset.rowIndex)+1).toString() && element.dataset.columnIndex === (parseInt(chessbox.dataset.columnIndex)-1).toString())
+                                    ||
+                                    (element.dataset.rowIndex === (parseInt(chessbox.dataset.rowIndex)+1).toString() && element.dataset.columnIndex === (parseInt(chessbox.dataset.columnIndex)+1).toString()));
+                                attackSuggestins.forEach(element => element.classList.add("attack"));
+                            }
+                        }
+                    }
+
                 }else if(this._from !== undefined){
                     chessbox.classList.add("selected");
                     this._to = [parseInt(chessbox.dataset.rowIndex),parseInt(chessbox.dataset.columnIndex)];
-                    console.log("to:"+this._to);
-                    console.log("new from: "+ this._from);
-                    this.currentState[this._to[0]][this._to[1]] = this.currentState[this._from[0]][this._from[1]];
-                    this.currentState[this._from[0]][this._from[1]] = "0";
+
+
+                    //Pawn game mecanics:
+                    //check if LAST SELECTED element was a Pawn
+                    if(this.currentState[this._from[0]][this._from[1]] instanceof Pawn){
+                        //Check the color
+                        if(this.currentState[this._from[0]][this._from[1]].color === "black"){
+                            //Decide what type of move Pawn will do: Attack or Move
+                            if(this.currentState[this._to[0]][this._to[1]] === "0"){
+                                //move rule
+                                //check if distance between LAST SELECTED row index and CURRENT SELECTED row index is 1
+                                //in less words check if it can move forward acording to their move direction
+                                if((this._to[0] - this._from[0]) !== 1 || this._to[1] !== this._from[1]){
+                                    console.log("ilegal move!");
+                                }else{
+                                    //Change position
+                                    this.currentState[this._to[0]][this._to[1]] = this.currentState[this._from[0]][this._from[1]];
+                                    this.currentState[this._from[0]][this._from[1]] = "0";
+                                    console.log(this._to[1] +" and"+ this._from[1]);
+                                }
+                            }else{
+                                //attack rule
+                                //if _to position is in fron of the Pawn or distance on the vertical axis is greater than 1 than ilegal
+                                if(this._to[1] === this._from[1] || (this._to[0] - this._from[0]) !== 1){
+                                    console.log("ilegal move!");    
+                                }else{
+                                    //Change position
+                                    this.currentState[this._to[0]][this._to[1]] = this.currentState[this._from[0]][this._from[1]];
+                                    this.currentState[this._from[0]][this._from[1]] = "0";
+                                    console.log(this._to[1] +" and"+ this._from[1]);
+                                }
+                            }
+                            
+                        }
+                        else{
+                            //white Pawn
+                            if(this.currentState[this._to[0]][this._to[1]] === "0"){
+                                //move rule
+                                if((this._from[0] - this._to[0]) !== 1 || this._to[1] !== this._from[1]){
+                                    console.log("ilegal move!");
+                                }else{
+                                    //Change position
+                                    this.currentState[this._to[0]][this._to[1]] = this.currentState[this._from[0]][this._from[1]];
+                                    this.currentState[this._from[0]][this._from[1]] = "0";
+                                    console.log(this._to[1] +" and"+ this._from[1]);
+                                }
+                            }else{
+                                //attack rule
+                                if(this._to[1] === this._from[1] || (this._from[0] -this._to[0]) !== 1){
+                                    console.log("ilegal move!");    
+                                }else{
+                                    //Change position
+                                    this.currentState[this._to[0]][this._to[1]] = this.currentState[this._from[0]][this._from[1]];
+                                    this.currentState[this._from[0]][this._from[1]] = "0";
+                                    console.log(this._to[1] +" and"+ this._from[1]);
+                                }
+                            }
+                        }
+                        
+                    }
+                    
                     this._from = undefined;
                     this._to = undefined;
                     this.clear();
@@ -327,6 +304,14 @@ class Board {
                     
                     let selectedChessboxes = Array.from(document.getElementsByClassName("selected"));
                     selectedChessboxes.forEach(element => element.classList.remove("selected"));
+
+                    let suggestedChessboxes = Array.from(document.getElementsByClassName("chessbox"));
+                    suggestedChessboxes.forEach( element => element.classList.remove("suggest"));
+                    
+                    let attackChessboxes = Array.from(document.getElementsByClassName("chessbox"));
+                    suggestedChessboxes.forEach( element => element.classList.remove("attack"));
+
+
                 }
             });
 
@@ -342,7 +327,6 @@ class Board {
         }
         container.appendChild(chessboard);
         document.body.appendChild(container);
-        // console.log(curre);
         return;
     }
 }
