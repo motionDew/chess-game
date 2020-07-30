@@ -72,6 +72,27 @@ class Bishop extends ChessPiece {
     get symbol() {
         return "♝";
     }
+
+    getSuggestedMoves(chesstableState,fromRow,fromCol){
+
+        let suggestedMoves = {
+            legalMoves: [],
+            attackMoves: [],    
+        };
+
+        // TODO: ideea, generalize so queen uses this rule (+ rook rules)
+        for(let i=fromRow; i<=7;i++){
+            if(fromCol+i <=7){
+                suggestedMoves.legalMoves.push([i,fromCol+i]);
+            }
+            if(fromCol - i >=0){
+                suggestedMoves.legalMoves.push([i,fromCol-i]);
+            }
+        }
+
+        let i = 0;
+        return suggestedMoves;
+    }
 }
 class Knight extends ChessPiece {
     constructor(color) {
@@ -114,21 +135,36 @@ class Pawn extends ChessPiece {
             legalMoves: [],
             attackMoves: [],    
         };
+
         let chessPiece = chesstableState[fromRow][fromCol];
         let pieceDirection = this.getPieceDirection(chessPiece.color);
+        const leftSideChessbox = chesstableState[fromRow + pieceDirection][fromCol-1];
+        const rightSideChessbox = chesstableState[fromRow + pieceDirection][fromCol+1];
 
         if((fromRow + pieceDirection) >= 0 && (fromRow + pieceDirection) <=7){
             if(chesstableState[fromRow + pieceDirection][fromCol] === "0"){
+                if(leftSideChessbox !== "0"){
+                    if(leftSideChessbox.color !== this.color){
+                        suggestedMoves.attackMoves.push([fromRow+pieceDirection,fromCol - 1]);
+                    }
+                }
+                if(rightSideChessbox !== "0"){
+                    if(rightSideChessbox.color !== this.color){
+                        suggestedMoves.attackMoves.push([fromRow+pieceDirection,fromCol + 1]);
+                    }
+                }
                 suggestedMoves.legalMoves.push([fromRow + pieceDirection,fromCol]);
             }else{
-                suggestedMoves.attackMoves.push([fromRow+pieceDirection,fromCol - 1]);
-                suggestedMoves.attackMoves.push([fromRow + pieceDirection,fromCol + 1]);
+                if(leftSideChessbox !== "0"){
+                    suggestedMoves.attackMoves.push([fromRow+pieceDirection,fromCol - 1]);
+                }
+                if(rightSideChessbox !== "0"){
+                    suggestedMoves.attackMoves.push([fromRow + pieceDirection,fromCol + 1]);
+                }
             }
         }
         return suggestedMoves;
-        
     }
-
 }
 
 
