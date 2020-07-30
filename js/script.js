@@ -31,6 +31,10 @@ class ChessPiece {
         this._color = value;
     }
 
+    //return
+    getSuggestedMoves(){
+        return;
+    }
     // Gets the div where the piece is placed.
     getContainerElement() {
         let container = Array.from(document.body.getElementsByClassName("chessbox"));
@@ -46,6 +50,9 @@ class King extends ChessPiece {
 
     get symbol() {
         return "♚";
+    }
+    getSuggestedMoves(){
+
     }
 }
 class Queen extends ChessPiece {
@@ -93,6 +100,35 @@ class Pawn extends ChessPiece {
         return "♟";
     }
 
+    getPieceDirection(colorValue){
+        if(colorValue === "black"){
+            return 1;
+        }
+        return -1;
+    }
+
+    //return a list of grid indexes where the piece can move;
+    getSuggestedMoves(chesstableState,fromRow,fromCol){
+
+        let suggestedMoves = {
+            legalMoves: [],
+            attackMoves: [],    
+        };
+        let chessPiece = chesstableState[fromRow][fromCol];
+        let pieceDirection = this.getPieceDirection(chessPiece.color);
+
+        if((fromRow + pieceDirection) >= 0 && (fromRow + pieceDirection) <=7){
+            if(chesstableState[fromRow + pieceDirection][fromCol] === "0"){
+                suggestedMoves.legalMoves.push([fromRow + pieceDirection,fromCol]);
+            }else{
+                suggestedMoves.attackMoves.push([fromRow+pieceDirection,fromCol - 1]);
+                suggestedMoves.attackMoves.push([fromRow + pieceDirection,fromCol + 1]);
+            }
+        }
+        return suggestedMoves;
+        
+    }
+
 }
 
 
@@ -109,7 +145,7 @@ class Board {
             ['0', '0', '0', '0', '0', '0', '0', '0'],
             ['0', '0', '0', '0', '0', '0', '0', '0'],
             [new Pawn('white'), new Pawn('white'), new Pawn('white'), new Pawn('white'), new Pawn('white'), new Pawn('white'), new Pawn('white'), new Pawn('white')],
-            [new Rook('white'), new Knight('white'), new Bishop('white'), new King('white'), new Queen('white'), new Bishop('white'), new Knight('white'), new Rook('white')]
+            [new Rook('white'), new Knight('white'), new Bishop('white'), new Queen('white'), new King('white'), new Bishop('white'), new Knight('white'), new Rook('white')]
         ]
     }
     constructor() {
@@ -184,7 +220,8 @@ class Board {
         const chessbox = event.currentTarget;
         const row = parseInt(chessbox.dataset.rowIndex);
         const column = parseInt(chessbox.dataset.columnIndex);
-        const currentChessbox = this.currentState[row][column];
+        const currentChessPiece = this.currentState[row][column];
+        let chessboxDivArray = helper.getChessboxesAsArray();
         
         if (!this.hasSquareSelected()) {
             
@@ -193,39 +230,49 @@ class Board {
             this.fromColumn = column;
 
             
+            let suggestedMoves = currentChessPiece.getSuggestedMoves(this.currentState,this.fromRow,this.fromColumn);
+            console.log(suggestedMoves);
+
+            //draw suggestions
+
+            //helper.getChessboxesAsArrayWithConstraint gets all DIVS that have indexes(row,column) in the specified array that looks like [[row1,col1],[row2,col2],..]
+            //for each element suggest/attack class name is added
+            helper.getChessboxesAsArrayWithConstraint(suggestedMoves.legalMoves).forEach( element => element.classList.add("suggest"));
+            helper.getChessboxesAsArrayWithConstraint(suggestedMoves.attackMoves).forEach( element => element.classList.add("attack"));   
+
             //Pawn game mechanics:
             // check if chessbox is corespondig to a Pawn
-            if (currentChessbox instanceof Pawn) {
+            if (currentChessPiece instanceof Pawn) {
                 //Check the colour in order to make a move suggestion
-                if (currentChessbox.color === "white") { 
-                    let chessboxArray = Array.from(document.getElementsByClassName("chessbox"));
-                    //filter the chessbox so only the legal suggestions remain available
-                    //Decide if next suggestion is an Attack or a Move
-                    if (this.currentState[this.fromRow - 1][this.fromColumn] === "0") {
-                        let possibleMoves = chessboxArray.filter(element => element.dataset.rowIndex === (row - 1).toString() && element.dataset.columnIndex === chessbox.dataset.columnIndex);
-                        //draw the chessbox suggestion in green
-                        possibleMoves.forEach(element => element.classList.add("suggest"));
-                    } else {
-                        let attackSuggestins = chessboxArray.filter(element =>
-                            (element.dataset.rowIndex === (row - 1).toString() && element.dataset.columnIndex === (column - 1).toString())
-                            ||
-                            (element.dataset.rowIndex === (row - 1).toString() && element.dataset.columnIndex === (column + 1).toString()));
-                        attackSuggestins.forEach(element => element.classList.add("attack"));
-                    }
-                } else {
-                    let chessboxArray = Array.from(document.getElementsByClassName("chessbox"));
-                    if (this.currentState[this.fromRow+1][this.fromColumn] === "0") {
-                        let possibleMoves = chessboxArray.filter(element => element.dataset.rowIndex === (row + 1).toString() && element.dataset.columnIndex === chessbox.dataset.columnIndex);
-                        //draw the chessbox suggestion in green
-                        possibleMoves.forEach(element => element.classList.add("suggest"));
-                    } else {
-                        let attackSuggestins = chessboxArray.filter(element =>
-                            (element.dataset.rowIndex === (row + 1).toString() && element.dataset.columnIndex === (column - 1).toString())
-                            ||
-                            (element.dataset.rowIndex === (row + 1).toString() && element.dataset.columnIndex === (column + 1).toString()));
-                        attackSuggestins.forEach(element => element.classList.add("attack"));
-                    }
-                }
+                // if (currentChessPiece.color === "white") { 
+                //     let chessboxArray = helper.getChessboxesAsArray();
+                //     //filter the chessbox so only the legal suggestions remain available
+                //     //Decide if next suggestion is an Attack or a Move
+                //     if (this.currentState[this.fromRow - 1][this.fromColumn] === "0") {
+                //         let possibleMoves = chessboxArray.filter(element => element.dataset.rowIndex === (row - 1).toString() && element.dataset.columnIndex === chessbox.dataset.columnIndex);
+                //         //draw the chessbox suggestion in green
+                //         possibleMoves.forEach(element => element.classList.add("suggest"));
+                //     } else {
+                //         let attackSuggestins = chessboxArray.filter(element =>
+                //             (element.dataset.rowIndex === (row - 1).toString() && element.dataset.columnIndex === (column - 1).toString())
+                //             ||
+                //             (element.dataset.rowIndex === (row - 1).toString() && element.dataset.columnIndex === (column + 1).toString()));
+                //         attackSuggestins.forEach(element => element.classList.add("attack"));
+                //     }
+                // } else {
+                //     let chessboxArray = Array.from(document.getElementsByClassName("chessbox"));
+                //     if (this.currentState[this.fromRow+1][this.fromColumn] === "0") {
+                //         let possibleMoves = chessboxArray.filter(element => element.dataset.rowIndex === (row + 1).toString() && element.dataset.columnIndex === chessbox.dataset.columnIndex);
+                //         //draw the chessbox suggestion in green
+                //         possibleMoves.forEach(element => element.classList.add("suggest"));
+                //     } else {
+                //         let attackSuggestins = chessboxArray.filter(element =>
+                //             (element.dataset.rowIndex === (row + 1).toString() && element.dataset.columnIndex === (column - 1).toString())
+                //             ||
+                //             (element.dataset.rowIndex === (row + 1).toString() && element.dataset.columnIndex === (column + 1).toString()));
+                //         attackSuggestins.forEach(element => element.classList.add("attack"));
+                //     }
+                // }
             }
 
         } else {
@@ -357,5 +404,21 @@ function app() {
 
 }
 
-
-//event listener
+let helper = {
+    getChessboxesAsArray: function(){
+        return Array.from(document.getElementsByClassName("chessbox"));
+    },
+    getChessboxFromIndexes: function(row,column){
+        if(Number.isInteger(row) || Number.isInteger(column)){
+            row = row.toString();
+            column = column.toString();
+        }
+        return this.getChessboxesAsArray().find(element => element.dataset.rowIndex === row && element.dataset.columnIndex === column);
+    },
+    getChessboxesAsArrayWithConstraint: function(indexArray){
+        let divArray = [];
+        let allDivs = this.getChessboxesAsArray();
+        indexArray.forEach(element => divArray.push(this.getChessboxFromIndexes(element[0],element[1])));
+        return divArray;
+    }
+}
