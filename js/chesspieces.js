@@ -1,3 +1,31 @@
+class PieceFactory{
+    constructor(){
+    }
+    create(name,color){
+        switch(name){
+            case "pawn":{
+                return new Pawn(color);
+            }
+            case "rook": {
+                return new Rook(color);
+            }
+            case "knight":{
+                return new Knight(color);
+            }
+            case "bishop":{
+                return new Bishop(color);
+            }
+            case "queen": {
+                return new Queen(color);
+            }
+            case "king":{
+                return new King(color);
+            }
+            default: return "0";
+        }
+    }
+}
+
 class ChessPiece {
     constructor(color) {
         if (new.target === ChessPiece) {
@@ -210,7 +238,32 @@ class ChessPiece {
         }
         return suggestedMoves;
     }
+    movePiece(chessboardState,suggestedMoves,fromRow,fromCol,toRow,toColumn){
+        
+        //check if to position is in suggested moves;
+        const selectedLegalMove = suggestedMoves.legalMoves.find( position => position[0] === toRow && position[1] === toColumn); //duplicate 
+        const selectedAttackMove = suggestedMoves.attackMoves.find( position => position[0] === toRow && position[1] === toColumn); //duplicate
 
+        //didn't find legal move, check if attack move
+        if(typeof selectedLegalMove === 'undefined'){
+           console.log("No legal move found");
+        }else{
+            //its legal move, put piece on legal move selected, and delete it from where it was;
+            chessboardState[toRow][toColumn] = chessboardState[fromRow][fromCol];
+            chessboardState[fromRow][fromCol] = "0";
+            return chessboardState;
+        }
+
+        if(typeof selectedAttackMove === 'undefined'){
+            console.log("No attack move found, exit");
+            return chessboardState;
+        }else{
+            //its attack move, delete piece instance of oposite team, move chesspiece; 
+            chessboardState[toRow][toColumn] = chessboardState[fromRow][fromCol];
+            chessboardState[fromRow][fromCol] = "0";
+            return chessboardState;
+        }
+    }
 }
 
 class King extends ChessPiece {
@@ -222,6 +275,9 @@ class King extends ChessPiece {
 
     get symbol() {
         return "♚";
+    }
+    get name() {
+        return "king";
     }
     getSuggestedMoves(chesstableState, fromRow, fromCol) {
         let suggestedMoves = {
@@ -258,6 +314,9 @@ class Queen extends ChessPiece {
     get symbol() {
         return "♛";
     }
+    get name() {
+        return "queen";
+    }
 
     getSuggestedMoves(chesstableState, fromRow, fromCol) {
 
@@ -278,6 +337,9 @@ class Bishop extends ChessPiece {
     get symbol() {
         return "♝";
     }
+    get name() {
+        return "bishop";
+    }
 
     getSuggestedMoves(chesstableState, fromRow, fromCol) {
         return super.diagonalSuggestedMoves(chesstableState, fromRow, fromCol);
@@ -292,6 +354,9 @@ class Knight extends ChessPiece {
 
     get symbol() {
         return "♞";
+    }
+    get name() {
+        return "knight";
     }
 
     getSuggestedMoves(chesstableState, fromRow, fromCol) {
@@ -330,6 +395,9 @@ class Rook extends ChessPiece {
     get symbol() {
         return "♜";
     }
+    get name() {
+        return "rook";
+    }
     getSuggestedMoves(chesstableState, fromRow, fromCol) {
         return super.crossSuggestedMoves(chesstableState, fromRow, fromCol);
     }
@@ -341,6 +409,9 @@ class Pawn extends ChessPiece {
 
     get symbol() {
         return "♟";
+    }
+    get name() {
+        return "pawn";
     }
 
     getPieceDirection(colorValue) {
@@ -391,4 +462,5 @@ class Pawn extends ChessPiece {
         }
         return suggestedMoves;
     }
+    
 }
