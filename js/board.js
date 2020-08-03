@@ -4,15 +4,15 @@ let headingCount;
 const storage = window.localStorage;
 
 //Utils classes
-class UndoCommand {
-    constructor() {
-        this.stateArray = [];
-    }
+// class UndoCommand {
+//     constructor() {
+//         this.stateArray = [];
+//     }
 
-}
+// }
 
 // Used to generate chessboard table with pieces and save state to storage;
-const chessboardState = {
+const initialBoardState = {
     0: [    {name:"rook", color: "black"},
             {name:"knight",color: "black"},
             {name:"bishop", color: "black"},
@@ -91,18 +91,16 @@ const chessboardInstances = [ [null,null,null,null,null,null,null,null],
                         ];
 
 class Board {
-
-    get initialState() {
-        return chessboardState;
-    }
     constructor() {
-        // this.currentState = this.initialState;
-        this.getState();
+        if(storage.getItem("currentState") === null){
+            this.currentState = initialBoardState;
+        }else{
+            this.getState();
+        }
         this.chessboardInstances = chessboardInstances;
         this.pieceFactory = new PieceFactory();
-        this.previousStates = [this.initialState];
+        // this.previousStates = [this.initialState];
     }
-
     //Variables
     get fromRow() {
         return this._fromRow;
@@ -134,9 +132,7 @@ class Board {
     set suggestedMoves(value) {
         this._suggestedMoves = value;
     }
-
     draw() {
-        let chessboxArray = Helper.getElementAsArray("chessbox")
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
 
@@ -147,77 +143,83 @@ class Board {
                     let piece = this.chessboardInstances[i][j];
                     pieceDiv.innerText = piece.symbol;
                     pieceDiv.classList.add(piece.color);
-                    chessbox.appendChild(pieceDiv);
+                    chessbox.append(pieceDiv);
                 } else {
-                    chessbox.innerHTML = "";
+                    chessbox.text("");
                 }
             }
         }
-        this.saveState();
     }
     clear() {
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 let chessbox = Helper.getChessboxAt(i,j);
-                chessbox.innerHTML = "";
+                chessbox.text(""); 
             }
         }
     }
-
     init() {
-        // let undoBtn = document.getElementById("undo");
-        // undoBtn.addEventListener("click", this.undo.bind(this));
-        let resetBtn = document.getElementById("reset");
-        resetBtn.addEventListener("click", this.reset.bind(this));
+        let resetBtn = $("#reset");
+        resetBtn.click(this.reset.bind(this));
     }
-
     // undo() {
     //     console.log(localStorage.getItem("fromRow"));
     // }
-
     hasSquareSelected() {
         return (typeof this._fromRow !== 'undefined') && typeof this._fromColumn !== 'undefined';
     }
-
-
+    // This function is fired every time a div with "chessbox" class is clicked
     onSquareClick(event) {
 
+        // Useful declarations;
         const chessbox = event.currentTarget;
         const row = parseInt(chessbox.dataset.rowIndex);
         const column = parseInt(chessbox.dataset.columnIndex);
         const currentChessPiece = this.chessboardInstances[row][column];
-        let chessboxDivArray = Helper.getChessboxesAsArray();
 
+        //Summary:  if first chessbox is clicked, we draw move suggestions based on selected piece logic;
+        //          Also we save the piece row and column dataset attributes for further use when the second square is clicked;
         if (!this.hasSquareSelected()) {
 
             chessbox.classList.add("selected");
             this.fromRow = row;
             this.fromColumn = column;
 
+
+            // "0" means empty chessbox;
             if(currentChessPiece !== "0"){
+                //Generate all legal moves and attack moves;
                 this.suggestedMoves = currentChessPiece.getSuggestedMoves(this.chessboardInstances, this.fromRow, this.fromColumn);
-                console.log(this.suggestedMoves);
+                // console.log(this.suggestedMoves);
                 
-                //Helper.getChessboxesAsArrayWithConstraint gets all DIVS that have indexes(row,column) in the specified array that looks like [[row1,col1],[row2,col2],..]
+                //Helper.addClassForEachPosition gets all DIVS that have indexes(row,column) in the specified array( from suggestedMoves struture) that looks like [[row1,col1],[row2,col2],..]
                 //for each element suggest/attack class name is added
-                Helper.getChessboxesAsArrayWithConstraint(this.suggestedMoves.legalMoves).forEach(element => element.classList.add("suggest"));
-                Helper.getChessboxesAsArrayWithConstraint(this.suggestedMoves.attackMoves).forEach(element => element.classList.add("attack"));
+                Helper.addClassForEachPosition(this.suggestedMoves.legalMoves,"suggest");
+                Helper.addClassForEachPosition(this.suggestedMoves.attackMoves,"attack");
             }
-            //draw suggestions
-
-
         } else {
+
+            //the second square was clicked, now we must decide if we can move the piece selected in the previous event, based on the suggested moves saved;
+
             this.toRow = row;
             this.toColumn = column;
             let lastSelectedPiece = this.chessboardInstances[this.fromRow][this.fromColumn];
-            let secondSelectedPiece = this.chessboardInstances[this.toRow][this.toColumn];
 
             if(lastSelectedPiece !== "0"){
                 this.chessboardInstances = lastSelectedPiece.movePiece(this.chessboardInstances,this.suggestedMoves,this.fromRow,this.fromColumn,this.toRow,this.toColumn);
             }
 
+
+            // this.currentState has only name and color attributes, not instances, so we have to sync them, with the piece instance matrix;
             this.syncCurrentStateWithChessboardInstances();
-            console.log(this.currentState);
+            // Save current state in local storage;
+            this.saveState();
+            // console.log(this.currentState);
+
+            //Assuming the two events happend, we have to clear the row and column class attributes for the further events;
+            //Also the chessboardInstances was modified, we have to redraw after the new chessboardInstances matrix;
+            //And we have to clear suggested moves, and selected pieces;
+
 
             this.fromRow = undefined;
             this.fromColumn = undefined;
@@ -254,7 +256,7 @@ class Board {
                     }
                 }
 
-                //fields given
+                //Element attributes
                 chessbox.dataset.columnIndex = j;
                 chessbox.dataset.rowIndex = i;
                 chessbox.addEventListener("click", this.onSquareClick.bind(this));
@@ -269,13 +271,12 @@ class Board {
         }
         container.appendChild(chessboard);
         document.body.appendChild(container);
-        console.log(this.chessboardInstances);
+        // console.log(this.chessboardInstances);
     }
     deleteBoard(){
-        let chessboardElement = document.getElementById("chessboard");
+        let chessboardElement = $("#chessboard");
         chessboardElement.remove();
     }
-
     saveState(){
         //Stringify chesboard state array
         let currentStateStringified = JSON.stringify(this.currentState);
@@ -303,8 +304,81 @@ class Board {
         }
     }
     reset(){
-        this.currentState = chessboardState;
-        this.chessboardInstances = chessboardInstances;
+        this.currentState = {
+            0: [    {name:"rook", color: "black"},
+                    {name:"knight",color: "black"},
+                    {name:"bishop", color: "black"},
+                    {name:"queen", color: "black"},
+                    {name: "king",color: "black"},
+                    {name: "bishop",color: "black"},
+                    {name: "knight",color: "black"},
+                    {name: "rook",color: "black"}],
+            1: [    {name: "pawn",color: "black"},
+                    {name: "pawn",color: "black"},
+                    {name: "pawn",color: "black"},
+                    {name: "pawn",color: "black"},
+                    {name: "pawn",color: "black"},
+                    {name: "pawn",color: "black"},
+                    {name: "pawn",color: "black"},
+                    {name: "pawn",color: "black"}],
+            2: [    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""}],
+            3: [    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""}],
+            4: [    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""}],
+            5: [    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""},
+                    {name: "EMPTY",color: ""}],
+            6: [    {name: "pawn",color: "white"},
+                    {name: "pawn",color: "white"},
+                    {name: "pawn",color: "white"},
+                    {name: "pawn",color: "white"},
+                    {name: "pawn",color: "white"},
+                    {name: "pawn",color: "white"},
+                    {name: "pawn",color: "white"},
+                    {name: "pawn",color: "white"}],
+            7:[     {name:"rook", color: "white"},
+                    {name:"knight",color: "white"},
+                    {name:"bishop", color: "white"},
+                    {name:"queen", color: "white"},
+                    {name: "king",color: "white"},
+                    {name: "bishop",color: "white"},
+                    {name: "knight",color: "white"},
+                    {name: "rook",color: "white"}]
+        }
+        this.chessboardInstances = [ [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+    ];
         console.log(this.currentState);
         console.log(this.chessboardInstances);
         this.deleteBoard();

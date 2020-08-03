@@ -29,7 +29,7 @@ class PieceFactory{
 class ChessPiece {
     constructor(color) {
         if (new.target === ChessPiece) {
-            throw new TypeError("Cannot construct ChessPiece instances  directly!");
+            // throw new TypeError("Cannot construct ChessPiece instances  directly!");
         }
         this.color = color;
     }
@@ -46,10 +46,8 @@ class ChessPiece {
         return this.diagonalSuggestedMoves();
     }
     // Gets the div where the piece is placed.
-    getContainerElement() {
-        let container = Array.from(document.body.getElementsByClassName("chessbox"));
-        let childContainer = container.find(box => box.dataset.columnIndex === this.coordinate.x && box.dataset.rowIndex === this.coordinate.y);
-        return childContainer;
+    getContainerElement(row,column) {
+        return $(".chessbox[data-row-index="+row+"][data-column-index="+column+"]");
     }
 
     diagonalSuggestedMoves(chesstableState, fromRow, fromCol) {
@@ -61,14 +59,6 @@ class ChessPiece {
 
         let i = 1;
         let done = false;
-
-        // let rightBottomSuggestions = Helper.diagonalTravesalWithDirection(chesstableState,fromRow,fromCol,"rightBottom");
-        // let leftTopSuggestions = Helper.diagonalTravesalWithDirection(chesstableState,fromRow,fromCol,"leftTop");
-        // let leftBottomSuggestions = Helper.diagonalTravesalWithDirection(chesstableState,fromRow,fromCol,"leftBottom");
-        // let rightTopSuggestions = Helper.diagonalTravesalWithDirection(chesstableState,fromRow,fromCol,"rightTop");
-
-        // suggestedMoves.legalMoves = [...rightBottomSuggestions.legalMoves,...leftTopSuggestions.legalMoves,...leftBottomSuggestions.legalMoves,...rightTopSuggestions.legalMoves];
-
 
         //repair
         while (!done) {
@@ -326,7 +316,9 @@ class Queen extends ChessPiece {
         diagonalMoves.legalMoves = [...diagonalMoves.legalMoves, ...crossMoves.legalMoves];
         diagonalMoves.attackMoves = [...diagonalMoves.attackMoves, ...crossMoves.attackMoves];
 
-        return diagonalMoves;
+        const queenMoves = diagonalMoves;
+
+        return queenMoves;
     }
 }
 class Bishop extends ChessPiece {
