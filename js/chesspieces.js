@@ -43,7 +43,7 @@ class ChessPiece {
 
     //return
     getSuggestedMoves() {
-        return this.diagonalSuggestedMoves();
+        
     }
     // Gets the div where the piece is placed.
     getContainerElement(row,column) {

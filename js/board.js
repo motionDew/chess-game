@@ -99,6 +99,7 @@ class Board {
         }
         this.chessboardInstances = chessboardInstances;
         this.pieceFactory = new PieceFactory();
+        this.colorTurn = "white";
         // this.previousStates = [this.initialState];
     }
     //Variables
@@ -132,17 +133,24 @@ class Board {
     set suggestedMoves(value) {
         this._suggestedMoves = value;
     }
+    get colorTurn() {
+        return this._colorTurn;
+    }
+    set colorTurn(value) {
+        this._colorTurn = value;
+    }
     draw() {
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
 
-                let pieceDiv = document.createElement("div");
+                // let pieceDiv = document.createElement("div");
+                let pieceDiv = $("<div class=\"piece\"></div>");
                 let chessbox = Helper.getChessboxAt(i,j);
 
                 if (this.chessboardInstances[i][j] !== "0") {
                     let piece = this.chessboardInstances[i][j];
-                    pieceDiv.innerText = piece.symbol;
-                    pieceDiv.classList.add(piece.color);
+                    pieceDiv.text(piece.symbol);
+                    pieceDiv.addClass(piece.color);
                     chessbox.append(pieceDiv);
                 } else {
                     chessbox.text("");
@@ -151,16 +159,16 @@ class Board {
         }
     }
     clear() {
-        for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 8; j++) {
-                let chessbox = Helper.getChessboxAt(i,j);
-                chessbox.text(""); 
-            }
-        }
+        // for (let i = 0; i < 8; i++) {
+        //     for (let j = 0; j < 8; j++) {
+        //         let chessbox = Helper.getChessboxAt(i,j);
+        //         chessbox.text(""); 
+        //     }
+        // }
+        $(".piece").remove();
     }
     init() {
-        let resetBtn = $("#reset");
-        resetBtn.click(this.reset.bind(this));
+        $("#reset").click(this.reset.bind(this));
     }
     // undo() {
     //     console.log(localStorage.getItem("fromRow"));
@@ -177,14 +185,18 @@ class Board {
         const column = parseInt(chessbox.dataset.columnIndex);
         const currentChessPiece = this.chessboardInstances[row][column];
 
+
+        //if king is under attack, show king is in danger
+        
+
+
         //Summary:  if first chessbox is clicked, we draw move suggestions based on selected piece logic;
         //          Also we save the piece row and column dataset attributes for further use when the second square is clicked;
-        if (!this.hasSquareSelected()) {
+        if (!this.hasSquareSelected() && currentChessPiece.color === this.colorTurn) {
 
             chessbox.classList.add("selected");
             this.fromRow = row;
             this.fromColumn = column;
-
 
             // "0" means empty chessbox;
             if(currentChessPiece !== "0"){
@@ -194,10 +206,10 @@ class Board {
                 
                 //Helper.addClassForEachPosition gets all DIVS that have indexes(row,column) in the specified array( from suggestedMoves struture) that looks like [[row1,col1],[row2,col2],..]
                 //for each element suggest/attack class name is added
-                Helper.addClassForEachPosition(this.suggestedMoves.legalMoves,"suggest");
-                Helper.addClassForEachPosition(this.suggestedMoves.attackMoves,"attack");
+                Helper.addClassForMultipleElements(this.suggestedMoves.legalMoves,"suggest");
+                Helper.addClassForMultipleElements(this.suggestedMoves.attackMoves,"attack");
             }
-        } else {
+        } else if(this.hasSquareSelected()){
 
             //the second square was clicked, now we must decide if we can move the piece selected in the previous event, based on the suggested moves saved;
 
@@ -216,11 +228,16 @@ class Board {
             this.saveState();
             // console.log(this.currentState);
 
+            
+            if(lastSelectedPiece.color === "white"){
+                this.colorTurn = "black";
+            }else{
+                this.colorTurn = "white";
+            }
+            
             //Assuming the two events happend, we have to clear the row and column class attributes for the further events;
             //Also the chessboardInstances was modified, we have to redraw after the new chessboardInstances matrix;
             //And we have to clear suggested moves, and selected pieces;
-
-
             this.fromRow = undefined;
             this.fromColumn = undefined;
             this.toRow = undefined;
@@ -231,46 +248,53 @@ class Board {
             Helper.removeFromClassList("selected");
             Helper.removeFromClassList("suggest");
             Helper.removeFromClassList("attack");
+
         }
     }
     generateBoard() {
-        let container = document.createDocumentFragment();
-        let chessboard = document.createElement("div");
-        chessboard.id = "chessboard";
+        // let container = document.createDocumentFragment();
+        // let chessboard = document.createElement("div");
+        // chessboard.id = "chessboard";
+        let chessboard = $("<div id=\"chessboard\"></div>");
+
 
         for (let i = 0; i < 8; i++) {
             for(let j=0; j<8;j++){
-                let chessbox = document.createElement("div");
+                // let chessbox = document.createElement("div");
+                let chessbox = $("<div class=\"chessbox\"></div>");
 
                 if(j % 2 === 0){
                     if (i % 2 === 0) {
-                        chessbox.className = "chessbox white-square";
+                        chessbox.addClass("white-square");
                     } else {
-                        chessbox.className = "chessbox black-square";
+                        chessbox.addClass("black-square");
                     }
                 }else{
                     if (i % 2 === 0) {
-                        chessbox.className = "chessbox black-square";
+                        chessbox.addClass("black-square");
                     } else {
-                        chessbox.className = "chessbox white-square";
+                        chessbox.addClass("white-square");
                     }
                 }
 
                 //Element attributes
-                chessbox.dataset.columnIndex = j;
-                chessbox.dataset.rowIndex = i;
-                chessbox.addEventListener("click", this.onSquareClick.bind(this));
-                
+                chessbox.attr("data-row-index",i);
+                chessbox.attr("data-column-index",j);
+                // chessbox.dataset.rowIndex = i;
+                // chessbox.addEventListener("click", this.onSquareClick.bind(this));
+                chessbox.click(this.onSquareClick.bind(this));
                 //append to document fragment
-                chessboard.appendChild(chessbox);
+                chessbox.appendTo(chessboard);
 
                 //create chess piece
                 let piece = this.pieceFactory.create(this.currentState[i][j].name,this.currentState[i][j].color);
+
                 this.chessboardInstances[i][j] = piece;
             }
         }
-        container.appendChild(chessboard);
-        document.body.appendChild(container);
+        // container.appendChild(chessboard);
+        // document.body.appendChild(container);
+        $("body").append(chessboard);
         // console.log(this.chessboardInstances);
     }
     deleteBoard(){
@@ -379,6 +403,7 @@ class Board {
         [null,null,null,null,null,null,null,null],
         [null,null,null,null,null,null,null,null],
     ];
+        this.colorTurn = "white";
         console.log(this.currentState);
         console.log(this.chessboardInstances);
         this.deleteBoard();

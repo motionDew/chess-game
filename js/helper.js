@@ -3,7 +3,7 @@ const Helper = {
         // return this.getChessboxesAsArray().find(element => element.dataset.rowIndex === row.toString() && element.dataset.columnIndex === column.toString());
         return $(".chessbox[data-row-index="+row+"][data-column-index="+column+"]");
     },
-    addClassForEachPosition: function (indexArray,className) {
+    addClassForMultipleElements: function (indexArray,className) {
         //add class name to specific divs
         indexArray.forEach(element => this.getChessboxAt(element[0], element[1]).addClass(className));
     },
