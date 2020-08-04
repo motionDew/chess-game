@@ -16,6 +16,13 @@ const Helper = {
             return true;
         }
         return false;
+    },
+    getSuggestionShape(){
+        let suggestedMoves = {
+            legalMoves: [],
+            attackMoves: [],
+        };
+        return suggestedMoves;
     }
 }
 class ChesstableParser{

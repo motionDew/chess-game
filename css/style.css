@@ -1,7 +1,6 @@
 #chessboard {
     width: 640px;
     height: 640px;
-    margin: 20px;
     border: 25px solid #333;
 }
 .chessbox{
@@ -61,4 +60,37 @@
 }
 .attack{
     background: rgba(255, 0, 0, 0.5);
+}
+
+@keyframes pulse-red{
+    0% {
+        /* background: white; */
+    }
+    50% {
+        background: rgba(255, 4, 4, 0.5);
+    }
+    100% {
+        background: rgba(255, 4, 4, 1);
+    }
+}
+
+.danger{
+    animation: pulse-red 0.1s alternate;
+    animation-iteration-count: 4;
+}
+
+main{
+    display: flex;
+    padding: 20px;
+}
+
+main h2{
+    font-size: 1.5em;
+    margin-left: 20px;
+}
+.piece-container{
+    margin-left: 20px;
+    display: flex;
+    font-size: 40px;
+    background: rgb(87, 87, 87,0.5);
 }

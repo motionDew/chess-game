@@ -444,11 +444,15 @@ class Pawn extends ChessPiece {
                 }
                 suggestedMoves.legalMoves.push([fromRow + pieceDirection, fromCol]);
             } else {
-                if (leftSideChessbox !== "0") {
-                    suggestedMoves.attackMoves.push([fromRow + pieceDirection, fromCol - 1]);
+                if(typeof leftSideChessbox !== 'undefined'){
+                    if (leftSideChessbox !== "0" && leftSideChessbox.color !== this.color) {
+                        suggestedMoves.attackMoves.push([fromRow + pieceDirection, fromCol - 1]);
+                    }
                 }
-                if (rightSideChessbox !== "0") {
-                    suggestedMoves.attackMoves.push([fromRow + pieceDirection, fromCol + 1]);
+                if(typeof rightSideChessbox !== 'undefined'){
+                    if (rightSideChessbox !== "0" && rightSideChessbox.color !== this.color) {
+                        suggestedMoves.attackMoves.push([fromRow + pieceDirection, fromCol + 1]);
+                    }
                 }
             }
         }
