@@ -23,6 +23,42 @@ header{
 header button{
     margin: 0px 10px;
 }
+header p{
+    margin-top: 15px;
+}
+
+.column{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.column p{
+    width: 50%;
+    padding: 30px 0px;
+}
+#joke-container{
+    margin-top: 10px;
+}
+
+
+@media only screen and (max-width: 364px) {
+    
+    main{
+        padding: 0;
+    }
+    #chessboard {
+        width: 320px;
+        height: 320px;
+        border: 1px solid #333;
+    }
+    .chessbox{
+        height: 40px;
+        width: 40px;
+        font-size: 40px;
+    }
+}
+
 @media only screen and (max-width: 768px) {
     
     header{
@@ -48,7 +84,7 @@ header button{
         font-size: 25px;
     }
 }
-@media only screen and (max-width: 364px) {
+@media only screen and (max-width: 320px) {
     
     main{
         padding: 0;
@@ -56,14 +92,20 @@ header button{
     #chessboard {
         width: 320px;
         height: 320px;
-        border: 1px solid #333;
+        border: 0px;
     }
     .chessbox{
         height: 40px;
         width: 40px;
         font-size: 40px;
     }
+    .column p{
+        width: 90%;
+    }
 }
+
+
+
 
 .black-square{
     float: left;
@@ -152,16 +194,3 @@ main h2{
 
 
 
-.column{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-.column p{
-    width: 50%;
-    padding: 30px 0px;
-}
-#joke-container{
-    margin-top: 10px;
-}

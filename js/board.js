@@ -147,6 +147,7 @@ class Board {
     }
 
     draw() {
+        $("#turn").text(`Now moving: ${this.colorTurn}`);
 
         //Take every piece instance from matrix state, and put them their matching divs
         for (let i = 0; i < 8; i++) {
@@ -228,6 +229,7 @@ class Board {
     }
     clear() {
         $(".piece").remove();
+        $("#turn").text("");
         this.suggestedMoves = undefined;
         Helper.removeFromClassList("selected");
         Helper.removeFromClassList("suggest");
@@ -238,10 +240,13 @@ class Board {
         $(document).on("click",".chessbox",this.onSquareClick.bind(this));
         $("#reset").click(this.reset.bind(this));
         $("#build-chessboard").click(this.buildChessboard.bind(this));
+        $("<p id=\"turn\" class=\"center\"></p>").appendTo($("header"));
+        $("#turn").text(`Now moving:${this.colorTurn}`);
         
         this.deleteBoard();
         this.generateBoard();
         this.draw();
+        this.getApiMoves();
     }
     buildChessboard(){
         this.deleteBoard();
@@ -518,7 +523,6 @@ class Board {
         this.draw();
         this.saveState();
     }
-
     checkKing(){
         //get king position, for the current color turn
         let position = this.getPiecePosition("king",this.colorTurn);
@@ -533,7 +537,6 @@ class Board {
             return kingUnderAttack;
         }
     }
-    
     changeColorTurn(){
         this.colorTurn === "white" ? this.colorTurn = "black" : this.colorTurn = "white"; 
     }
@@ -607,7 +610,9 @@ class Board {
             }
         }
     }
-
+    getApiMoves(){
+        console.log();
+    }
 }
 
 

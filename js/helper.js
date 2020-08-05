@@ -41,8 +41,15 @@ $("#room-number").on("click",function(){
 });
 
 function changeConnectionInfo(){
-    $("#create").remove();
-    $("#room-number").remove();
-    $("#connect").remove();
-    $(`<p>Your room number is: ${gameID}</p>`).appendTo($("header"));
+    $("#create").hide();
+    $("#room-number").hide();
+    $("#connect").hide();
+    $(`<p id="room" class=\"center\">Your room number is: ${gameID}</p>`).appendTo($("header"));
 }
+
+$("#start").on("click",function(){
+    $("#create").show();
+    $("#room-number").show();
+    $("#connect").show();
+    $("#room").hide();
+})

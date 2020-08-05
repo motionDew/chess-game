@@ -5,7 +5,7 @@ $("#connect").on("click",connectToRoom);
 let ajaxCreateGame;
 let ajaxConnect;
 let gameID;
-let requestBody;
+let moves = {};
 let connected;
 
 function createGame(){
@@ -35,9 +35,9 @@ function connectToRoom(){
                 gameID = data.ID;
                 console.log(gameID);
                 changeConnectionInfo();
-                requestBody = data;
+                getRequestBody = data;
                 connected = true;
-                //++ 
+                app();
             },
             error: function(data,status){
                 console.log("ERROR"+status);
@@ -53,10 +53,8 @@ setInterval(() => {
             url: `https://chess.thrive-dev.bitstoneint.com/wp-json/chess-api/game/${gameID}`,
             success: function(data){
                 gameID = data.ID;
-                // console.log(gameID);
-                requestBody = data;
-                //++ 
-                // console.log(requestBody.moves);
+                movesProxy = data.moves;
+                // console.log(data);
             },
             error: function(data,status){
                 console.log("ERROR"+status);
@@ -64,6 +62,15 @@ setInterval(() => {
         });
     }
 }, 1000);
+
+
+var movesProxy = new Proxy(moves, {
+  set: function (target, key, value) {
+      console.log(`${key} set to ${value}`);
+      target[key] = value;
+      return true;
+  }
+});
 
 
 //{
