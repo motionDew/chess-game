@@ -13,14 +13,19 @@
 </head>
 
 <body>
-  <header>
+  <header class="center">
     <button onclick="app()">Start Game</button>
-    <button id="reset">Reset</button>
     <button id="build-chessboard">Build your chessboard</button>
+    <button id="reset">Reset</button>
   </header>
-  <main>
+  <main class="center">
     
   </main>
+
+  <div id="joke-container" class="center">
+    <button id="joke-btn">Generate joke</button>
+    <div id="joke-text"></div>
+  </div>
   <!-- <button id="undo">Undo</button> -->
   <script src="js/board.js"></script>
   <script src="js/chesspieces.js"></script>

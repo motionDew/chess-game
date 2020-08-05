@@ -147,10 +147,12 @@ class Board {
     }
 
     draw() {
+
+        //Take every piece instance from matrix state, and put them their matching divs
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
 
-                // let pieceDiv = document.createElement("div");
+                //create a piece div
                 let pieceDiv = $("<div class=\"piece\"></div>");
                 let chessbox = Helper.getChessboxAt(i,j);
 
@@ -175,13 +177,40 @@ class Board {
         const column = parseInt(chessbox.dataset.columnIndex);
         const currentChessPiece = this.chessboardInstances[row][column];
 
-        console.log(row +" "+ column);
+        this.fromRow = row;
+        this.fromColumn = column;
+
+        if(currentChessPiece.color === this.colorTurn){
+            this.setSuggestions(currentChessPiece);
+            this.drawSuggestions(this.suggestedMoves);
+        }
+            
+        console.log("Selected "+currentChessPiece.name+" of team "+ currentChessPiece.color+" at ["+ row +"]["+ column+"]");
+
     }
     onDrop(e){
         const chessbox = e.target;
-        //const row = parseInt(chessbox.dataset.rowIndex);
-        //const column = parseInt(chessbox.dataset.columnIndex);
-        //const currentChessPiece = this.chessboardInstances[row][column];
+        const row = parseInt(chessbox.dataset.rowIndex);
+        const column = parseInt(chessbox.dataset.columnIndex);
+
+        this.toRow = row;
+        this.toColumn = column;
+        let lastSelectedPiece = this.chessboardInstances[this.fromRow][this.fromColumn];
+
+        this.moveSelectedPiece(lastSelectedPiece);
+        this.saveState();
+
+        this.fromRow = undefined;
+        this.fromColumn = undefined;
+        this.toRow = undefined;
+        this.toColumn = undefined;
+
+        console.log("Moved "+lastSelectedPiece.name+" of team "+ lastSelectedPiece.color+" at ["+ row +"]["+ column+"]");
+        console.log("Now is "+this.colorTurn+" turn");
+
+        this.clear();
+        this.draw();
+
     }
     setSuggestions(currentChessPiece){
         // "0" means empty chessbox;
@@ -193,12 +222,17 @@ class Board {
     }
     drawSuggestions(suggestedMoves){
         //Helper.addClassForEachPosition gets all DIVS that have indexes(row,column) in the specified array( from suggestedMoves struture) that looks like [[row1,col1],[row2,col2],..]
-            //for each element suggest/attack class name is added
-            Helper.addClassForMultipleElements(suggestedMoves.legalMoves,"suggest");
-            Helper.addClassForMultipleElements(suggestedMoves.attackMoves,"attack");
+        //for each element suggest/attack class name is added
+        Helper.addClassForMultipleElements(suggestedMoves.legalMoves,"suggest");
+        Helper.addClassForMultipleElements(suggestedMoves.attackMoves,"attack");
     }
     clear() {
         $(".piece").remove();
+        this.suggestedMoves = undefined;
+        Helper.removeFromClassList("selected");
+        Helper.removeFromClassList("suggest");
+        Helper.removeFromClassList("attack");
+        Helper.removeFromClassList("danger");
     }
     init() {
         $(document).on("click",".chessbox",this.onSquareClick.bind(this));
@@ -228,9 +262,6 @@ class Board {
             $(".white-pieces").append($(`<div>${pieceArray[i].symbol}</div>`));
         }
     }
-    // undo() {
-    //     console.log(localStorage.getItem("fromRow"));
-    // }
     hasSquareSelected() {
         return (typeof this._fromRow !== 'undefined') && typeof this._fromColumn !== 'undefined';
     }
@@ -294,17 +325,10 @@ class Board {
             this.moveSelectedPiece(lastSelectedPiece);
 
             // this.currentState has only name and color attributes, not instances, so we have to sync them, with the piece instance matrix;
-            this.syncCurrentStateWithChessboardInstances();
+            this.syncAfterInstances();
             // Save current state in local storage;
             this.saveState();
             // console.log(this.currentState);
-
-            
-            if(lastSelectedPiece.color === "white"){
-                this.colorTurn = "black";
-            }else{
-                this.colorTurn = "white";
-            }
             
             //Assuming the two events happend, we have to clear the row and column class attributes for the further events;
             //Also the chessboardInstances was modified, we have to redraw after the new chessboardInstances matrix;
@@ -317,10 +341,7 @@ class Board {
             this.clear();
             this.draw();
 
-            Helper.removeFromClassList("selected");
-            Helper.removeFromClassList("suggest");
-            Helper.removeFromClassList("attack");
-            Helper.removeFromClassList("danger");
+            
         }
     }
     generateBoard() {
@@ -347,7 +368,7 @@ class Board {
                 //Element attributes
                 chessbox.attr("data-row-index",i);
                 chessbox.attr("data-column-index",j);
-                chessbox.droppable(this.onDrop.bind(this));
+                chessbox.droppable({drop:this.onDrop.bind(this)});
                 //append to document fragment
                 chessbox.appendTo(chessboard);
 
@@ -379,7 +400,7 @@ class Board {
         //Update the state to the storage saved state;
         this.currentState = currentStateParsed;
     }
-    syncCurrentStateWithChessboardInstances(){
+    syncAfterInstances(){
         for(let i=0;i<8;i++){
             for(let j=0;j<8;j++){
                 if(this.chessboardInstances[i][j] === "0"){
@@ -388,6 +409,27 @@ class Board {
                 }else{
                     this.currentState[i][j].name = this.chessboardInstances[i][j].name;
                     this.currentState[i][j].color = this.chessboardInstances[i][j].color;
+                }
+            }
+        }
+    }
+    syncAfterObjects(){
+        this.chessboardInstances = [ [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+    ];  
+        for(let i=0;i<8;i++){
+            for(let j=0;j<8;j++){
+                if(this.currentState[i][j].name === "EMPTY"){
+                    this.chessboardInstances[i][j] = "0";
+                }else{
+                    let piece = this.pieceFactory.create(this.currentState[i][j].name,this.currentState[i][j].color);
+                    this.chessboardInstances[i][j] = piece;
                 }
             }
         }
@@ -469,8 +511,8 @@ class Board {
         [null,null,null,null,null,null,null,null],
     ];  
         this.colorTurn = "white";
-        console.log(this.currentState);
-        console.log(this.chessboardInstances);
+        // console.log(this.currentState);
+        // console.log(this.chessboardInstances);
         this.deleteBoard();
         this.generateBoard();
         this.draw();
@@ -491,7 +533,10 @@ class Board {
             return kingUnderAttack;
         }
     }
-
+    
+    changeColorTurn(){
+        this.colorTurn === "white" ? this.colorTurn = "black" : this.colorTurn = "white"; 
+    }
     getOpponentColor(){
         return this.colorTurn === "white" ? "black" : "white";
     }
@@ -524,9 +569,32 @@ class Board {
         return undefined;
     }
     moveSelectedPiece(lastSelectedPiece){
-        if(lastSelectedPiece !== "0"){
-            this.chessboardInstances = lastSelectedPiece.movePiece(this.chessboardInstances,this.suggestedMoves,this.fromRow,this.fromColumn,this.toRow,this.toColumn);
+
+        // sync in case player does an ilegal move;
+        this.syncAfterInstances();
+
+        this.chessboardInstances = lastSelectedPiece.movePiece(this.chessboardInstances,this.suggestedMoves,this.fromRow,this.fromColumn,this.toRow,this.toColumn);
+        this.changeColorTurn();
+
+        if(typeof this.chessboardInstances === 'undefined'){
+
+            console.log("Performed an illegal move!");
+
+            // 
+            this.syncAfterObjects();
+
+            //Revert team turn;
+
+            if(this.colorTurn === "white"){
+                //black should make a legal move first;
+                this.changeColorTurn();
+
+            }else{
+                //if turn is black, white should do a legal move first
+                this.changeColorTurn();
+            }
         }
+
     }
     removePossibleDangerMoves(opponentMoves){
 

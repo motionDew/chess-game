@@ -231,27 +231,30 @@ class ChessPiece {
     movePiece(chessboardState,suggestedMoves,fromRow,fromCol,toRow,toColumn){
         
         //check if to position is in suggested moves;
-        const selectedLegalMove = suggestedMoves.legalMoves.find( position => position[0] === toRow && position[1] === toColumn); //duplicate 
-        const selectedAttackMove = suggestedMoves.attackMoves.find( position => position[0] === toRow && position[1] === toColumn); //duplicate
+        if(typeof suggestedMoves !== "undefined"){
 
-        //didn't find legal move, check if attack move
-        if(typeof selectedLegalMove === 'undefined'){
-           console.log("No legal move found");
-        }else{
-            //its legal move, put piece on legal move selected, and delete it from where it was;
-            chessboardState[toRow][toColumn] = chessboardState[fromRow][fromCol];
-            chessboardState[fromRow][fromCol] = "0";
-            return chessboardState;
-        }
-
-        if(typeof selectedAttackMove === 'undefined'){
-            console.log("No attack move found, exit");
-            return chessboardState;
-        }else{
-            //its attack move, delete piece instance of oposite team, move chesspiece; 
-            chessboardState[toRow][toColumn] = chessboardState[fromRow][fromCol];
-            chessboardState[fromRow][fromCol] = "0";
-            return chessboardState;
+            const selectedLegalMove = suggestedMoves.legalMoves.find( position => position[0] === toRow && position[1] === toColumn); //duplicate 
+            const selectedAttackMove = suggestedMoves.attackMoves.find( position => position[0] === toRow && position[1] === toColumn); //duplicate
+            
+            //didn't find legal move, check if attack move
+            if(typeof selectedLegalMove === 'undefined'){
+                console.log("No legal move found");
+            }else{
+                //its legal move, put piece on legal move selected, and delete it from where it was;
+                chessboardState[toRow][toColumn] = chessboardState[fromRow][fromCol];
+                chessboardState[fromRow][fromCol] = "0";
+                return chessboardState;
+            }
+            
+            if(typeof selectedAttackMove === 'undefined'){
+                console.log("No attack move found, exit");
+                return chessboardState;
+            }else{
+                //its attack move, delete piece instance of oposite team, move chesspiece; 
+                chessboardState[toRow][toColumn] = chessboardState[fromRow][fromCol];
+                chessboardState[fromRow][fromCol] = "0";
+                return chessboardState;
+            }
         }
     }
 }

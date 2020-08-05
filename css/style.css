@@ -94,3 +94,16 @@ main h2{
     font-size: 40px;
     background: rgb(87, 87, 87,0.5);
 }
+
+.center{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+header{
+    padding: 30px;
+}
+header button{
+    margin: 0px 10px;
+}
