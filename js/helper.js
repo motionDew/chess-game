@@ -33,3 +33,16 @@ class ChesstableParser{
         
     }
 }
+
+// View experience;
+
+$("#room-number").on("click",function(){
+    $(this).val("");
+});
+
+function changeConnectionInfo(){
+    $("#create").remove();
+    $("#room-number").remove();
+    $("#connect").remove();
+    $(`<p>Your room number is: ${gameID}</p>`).appendTo($("header"));
+}

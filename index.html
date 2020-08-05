@@ -17,19 +17,25 @@
     <button onclick="app()">Start Game</button>
     <button id="build-chessboard">Build your chessboard</button>
     <button id="reset">Reset</button>
+    <button id="create">Create</button>
+    <input type="text" id="room-number" name="room-number" value="Room number goes here">
+    <button id="connect">Connect</button>
+
   </header>
   <main class="center">
     
   </main>
 
-  <div id="joke-container" class="center">
+  <div id="joke-container" class="column">
     <button id="joke-btn">Generate joke</button>
-    <div id="joke-text"></div>
+    <p id="joke-text"></div>
   </div>
   <!-- <button id="undo">Undo</button> -->
+  <script src="js/helper.js"></script>
   <script src="js/board.js"></script>
+  <script src="js/multiplayer.js"></script>
+  <script src="js/joke.js"></script>
   <script src="js/chesspieces.js"></script>
   <script src="js/app.js"></script>
-  <script src="js/helper.js"></script>
 </body>
 </html>

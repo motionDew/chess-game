@@ -1,12 +1,68 @@
 #chessboard {
     width: 640px;
     height: 640px;
-    border: 25px solid #333;
+    border: 3px solid #333;
 }
 .chessbox{
     height: 80px;
     width: 80px;
     font-size: 40px;
+}
+main{
+    display: flex;
+    padding: 20px;
+}
+.center{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+header{
+    padding: 30px;
+}
+header button{
+    margin: 0px 10px;
+}
+@media only screen and (max-width: 768px) {
+    
+    header{
+        display: flex;
+        flex-direction: column;
+    }
+    header button{
+        width: 100px;
+        margin: 5px 0px;
+    }
+    header input{
+        width: 200px;
+        margin: 5px 0px;
+    }
+    #chessboard {
+        width: 320px;
+        height: 320px;
+        border: 3px solid #333;
+    }
+    .chessbox{
+        height: 40px;
+        width: 40px;
+        font-size: 25px;
+    }
+}
+@media only screen and (max-width: 364px) {
+    
+    main{
+        padding: 0;
+    }
+    #chessboard {
+        width: 320px;
+        height: 320px;
+        border: 1px solid #333;
+    }
+    .chessbox{
+        height: 40px;
+        width: 40px;
+        font-size: 40px;
+    }
 }
 
 .black-square{
@@ -79,10 +135,7 @@
     animation-iteration-count: 4;
 }
 
-main{
-    display: flex;
-    padding: 20px;
-}
+
 
 main h2{
     font-size: 1.5em;
@@ -95,15 +148,20 @@ main h2{
     background: rgb(87, 87, 87,0.5);
 }
 
-.center{
+
+
+
+
+.column{
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
 }
-
-header{
-    padding: 30px;
+.column p{
+    width: 50%;
+    padding: 30px 0px;
 }
-header button{
-    margin: 0px 10px;
+#joke-container{
+    margin-top: 10px;
 }
