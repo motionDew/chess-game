@@ -40,6 +40,9 @@ const Helper = {
     },
     negative(color){
         return color === "white" ? "black" : "white";
+    },
+    requestBodyModified(){
+        
     }
 }
 class ChesstableParser{

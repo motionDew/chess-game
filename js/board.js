@@ -707,6 +707,8 @@ class Board {
                 this.clear();
                 this.draw();
             }
+        }else{
+            // alert("Invalid request body format!");
         }
         //change turn
 

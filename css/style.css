@@ -42,23 +42,6 @@ header p{
 }
 
 
-@media only screen and (max-width: 364px) {
-    
-    main{
-        padding: 0;
-    }
-    #chessboard {
-        width: 320px;
-        height: 320px;
-        border: 1px solid #333;
-    }
-    .chessbox{
-        height: 40px;
-        width: 40px;
-        font-size: 40px;
-    }
-}
-
 @media only screen and (max-width: 768px) {
     
     header{
@@ -84,6 +67,23 @@ header p{
         font-size: 25px;
     }
 }
+@media only screen and (max-width: 364px) {
+    
+    main{
+        padding: 0;
+    }
+    #chessboard {
+        width: 320px;
+        height: 320px;
+        border: 1px solid #333;
+    }
+    .chessbox{
+        height: 40px;
+        width: 40px;
+        font-size: 40px;
+    }
+}
+
 @media only screen and (max-width: 320px) {
     
     main{

@@ -18,7 +18,6 @@ function createGame(){
             gameID = data.ID;
             changeConnectionInfo();
             connected = true;
-            app("MULTIPLAYER","white");
        });
 }
 
