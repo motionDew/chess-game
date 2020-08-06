@@ -23,6 +23,23 @@ const Helper = {
             attackMoves: [],
         };
         return suggestedMoves;
+    },
+    moveShape(fromRow,fromColumn,toRow,toColumn,color){
+        const moveObject = {
+            "from": {
+                "x": fromRow,
+                "y": fromColumn
+            },
+            "to":{
+                "x": toRow,
+                "y": toColumn
+            },
+            "by": color
+        }
+        return moveObject;
+    },
+    negative(color){
+        return color === "white" ? "black" : "white";
     }
 }
 class ChesstableParser{
@@ -33,6 +50,8 @@ class ChesstableParser{
         
     }
 }
+
+
 
 // View experience;
 
@@ -53,3 +72,6 @@ $("#start").on("click",function(){
     $("#connect").show();
     $("#room").hide();
 })
+
+
+

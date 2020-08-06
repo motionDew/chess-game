@@ -91,7 +91,7 @@ const chessboardInstances = [ [null,null,null,null,null,null,null,null],
                         ];
 
 class Board {
-    constructor() {
+    constructor(gameType,teamColor) {
         if(storage.getItem("currentState") === null){
             this.currentState = initialBoardState;
         }else{
@@ -101,8 +101,34 @@ class Board {
         this.pieceFactory = new PieceFactory();
         this.colorTurn = "white";
         this.gameState = "";
+        this.gameType = gameType;
+        this.pieceMoved = false;
+
+        if(gameType === "MULTIPLAYER"){
+            this.setAjaxSuccesListener();
+            this.playerColor = teamColor;
+            console.log(this.playerColor);
+        }
     }
     //Variables
+    get playerColor() {
+        return this._player1Color;
+    }
+    set playerColor(value) {
+        this._player1Color = value;
+    }
+    get pieceMoved() {
+        return this._pieceMoved;
+    }
+    set pieceMoved(value) {
+        this._pieceMoved = value;
+    }
+    get gameType() {
+        return this._gameType;
+    }
+    set gameType(value) {
+        this._gameType = value;
+    }
     get fromRow() {
         return this._fromRow;
     }
@@ -144,6 +170,13 @@ class Board {
     }
     set gameState(value) {
         this._gameState = value;
+    }
+
+    setAjaxSuccesListener(){
+        $(document).ajaxSuccess(this.handleSuccess.bind(this));
+    }
+    removeAjaxSuccesListener(){
+
     }
 
     draw() {
@@ -189,35 +222,45 @@ class Board {
         console.log("Selected "+currentChessPiece.name+" of team "+ currentChessPiece.color+" at ["+ row +"]["+ column+"]");
 
     }
-    onDrop(e){
+    onSquareDrop(e){
         const chessbox = e.target;
         const row = parseInt(chessbox.dataset.rowIndex);
         const column = parseInt(chessbox.dataset.columnIndex);
-
         this.toRow = row;
         this.toColumn = column;
-        let lastSelectedPiece = this.chessboardInstances[this.fromRow][this.fromColumn];
 
-        this.moveSelectedPiece(lastSelectedPiece);
-        this.saveState();
+        if(this.gameType === "SINGLEPLAYER"){
+            this.moveSelectedPiece();
+            this.changeColorTurn();
+            this.saveState();
+        }
+    
+        if(this.gameType === "MULTIPLAYER"){
+            if(this.playerColor === this.colorTurn){
+                this.moveSelectedPiece();
+                if(this.pieceMoved === true){
+                    this.sendApiMoves();
+                }
+            }else{
+                alert("Not your turn!");
+                // console.log(this.playerColor);
+            }
+            // this.changeColorTurn();
+        }
 
         this.fromRow = undefined;
         this.fromColumn = undefined;
         this.toRow = undefined;
         this.toColumn = undefined;
 
-        console.log("Moved "+lastSelectedPiece.name+" of team "+ lastSelectedPiece.color+" at ["+ row +"]["+ column+"]");
-        console.log("Now is "+this.colorTurn+" turn");
-
         this.clear();
         this.draw();
-
     }
-    setSuggestions(currentChessPiece){
+    setSuggestions(currentChessPiece, fromRow = this.fromRow, fromColumn = this.fromColumn){
         // "0" means empty chessbox;
         if(currentChessPiece !== "0"){
             //Generate all legal moves and attack moves;
-            this.suggestedMoves = currentChessPiece.getSuggestedMoves(this.chessboardInstances, this.fromRow, this.fromColumn);
+            this.suggestedMoves = currentChessPiece.getSuggestedMoves(this.chessboardInstances, fromRow, fromColumn);
             // console.log(this.suggestedMoves);
         }
     }
@@ -237,7 +280,7 @@ class Board {
         Helper.removeFromClassList("danger");
     }
     init() {
-        $(document).on("click",".chessbox",this.onSquareClick.bind(this));
+        // $(document).on("click",".chessbox",this.onSquareClick.bind(this));
         $("#reset").click(this.reset.bind(this));
         $("#build-chessboard").click(this.buildChessboard.bind(this));
         $("<p id=\"turn\" class=\"center\"></p>").appendTo($("header"));
@@ -246,7 +289,6 @@ class Board {
         this.deleteBoard();
         this.generateBoard();
         this.draw();
-        this.getApiMoves();
     }
     buildChessboard(){
         this.deleteBoard();
@@ -373,7 +415,7 @@ class Board {
                 //Element attributes
                 chessbox.attr("data-row-index",i);
                 chessbox.attr("data-column-index",j);
-                chessbox.droppable({drop:this.onDrop.bind(this)});
+                chessbox.droppable({drop:this.onSquareDrop.bind(this)});
                 //append to document fragment
                 chessbox.appendTo(chessboard);
 
@@ -537,11 +579,13 @@ class Board {
             return kingUnderAttack;
         }
     }
-    changeColorTurn(){
-        this.colorTurn === "white" ? this.colorTurn = "black" : this.colorTurn = "white"; 
+    changeColorTurn(colorTurn = this.colorTurn, pieceMoved = this.pieceMoved){
+        if(pieceMoved === true){
+            colorTurn === "white" ? this.colorTurn = "black" : this.colorTurn = "white"; 
+        }
     }
-    getOpponentColor(){
-        return this.colorTurn === "white" ? "black" : "white";
+    getOpponentColor(color = this.colorTurn){
+        return color === "white" ? "black" : "white";
     }
     getOpponentMoves(opponentColor){
 
@@ -571,33 +615,34 @@ class Board {
         }
         return undefined;
     }
-    moveSelectedPiece(lastSelectedPiece){
+    moveSelectedPiece(fromRow = this.fromRow, fromColumn = this.fromColumn, toRow = this.toRow, toColumn = this.toColumn){
 
         // sync in case player does an ilegal move;
         this.syncAfterInstances();
 
-        this.chessboardInstances = lastSelectedPiece.movePiece(this.chessboardInstances,this.suggestedMoves,this.fromRow,this.fromColumn,this.toRow,this.toColumn);
-        this.changeColorTurn();
+        let lastSelectedPiece = this.chessboardInstances[fromRow][fromColumn];
+        if(lastSelectedPiece !== "0"){
 
-        if(typeof this.chessboardInstances === 'undefined'){
-
-            console.log("Performed an illegal move!");
-
-            // 
-            this.syncAfterObjects();
-
-            //Revert team turn;
-
-            if(this.colorTurn === "white"){
-                //black should make a legal move first;
-                this.changeColorTurn();
-
+            let moveInfo = lastSelectedPiece.movePiece(this.chessboardInstances,this.suggestedMoves,fromRow,fromColumn,toRow,toColumn);
+            
+            this.chessboardInstances = moveInfo.state;
+            this.pieceMoved = moveInfo.moved;
+            
+            if(typeof moveInfo.state === 'undefined'){
+                console.log("Performed an illegal move!");
+                this.syncAfterObjects();
+                this.pieceMoved = false;
             }else{
-                //if turn is black, white should do a legal move first
-                this.changeColorTurn();
+                console.log("Moved "+lastSelectedPiece.name+" of team "+ lastSelectedPiece.color+" at ["+ toRow +"]["+ toColumn+"]");
+                console.log("Now is "+this.colorTurn+" turn");
             }
         }
-
+    }
+    moveApiPiece(fromRow, fromColumn, toRow, toColumn){
+        if(this.chessboardInstances[fromRow][fromColumn] !== "0"){
+            this.chessboardInstances[toRow][toColumn] = this.chessboardInstances[fromRow][fromColumn];
+            this.chessboardInstances[fromRow][fromColumn] = "0";
+        }
     }
     removePossibleDangerMoves(opponentMoves){
 
@@ -611,9 +656,70 @@ class Board {
         }
     }
     getApiMoves(){
-        console.log();
+        return moves; 
+    }
+    sendApiMoves(){
+        const move = Helper.moveShape(this.fromRow,this.fromColumn,this.toRow,this.toColumn,this.colorTurn);
+
+        if(this.gameType === "MULTIPLAYER"){
+            $.ajax({
+                method: "POST",
+                url: `https://chess.thrive-dev.bitstoneint.com/wp-json/chess-api/game/${gameID}`,
+                data: {move}
+            }).done(function(data){
+            });
+        }
+    }
+    handleSuccess(event, xhr, settings){
+        if (settings.url == `https://chess.thrive-dev.bitstoneint.com/wp-json/chess-api/game/${gameID}`) {
+
+        // console.log(this);
+        //get last move
+        let moves = this.getApiMoves();
+        let move = moves[moves.length - 1];
+        console.log(move);
+        
+        if(typeof move !== "undefined" ){
+            
+            const apiColor = move.by;
+            const fromRow = parseInt(move.from.x);
+            const fromColumn = parseInt(move.from.y);
+            const toRow = parseInt(move.to.x);
+            const toColumn = parseInt(move.to.y);
+
+            if(apiColor === "black"){
+                this.colorTurn = "white";
+            }else{
+                this.colorTurn = "black";
+            }
+            $("#turn").text(`Now moving: ${this.colorTurn}`);
+
+            //if the player color is different from the color of the last player that moved a piece
+            if(this.playerColor !== apiColor){
+                // should move the piece on their tab too
+
+                // we know that the piece is moved corectly we dont have to check suggestions;
+                this.moveApiPiece(fromRow,fromColumn,toRow,toColumn);
+                this.clear();
+                this.draw();
+            }else{
+                this.moveApiPiece(fromRow,fromColumn,toRow,toColumn);
+                this.clear();
+                this.draw();
+            }
+        }
+        //change turn
+
+        //you turn move
+
+        //send move to API
+
+        //this.getApiMoves();
+        
+        }
     }
 }
+
 
 
 

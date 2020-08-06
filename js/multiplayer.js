@@ -16,9 +16,9 @@ function createGame(){
         data: {name: "motiondew"}
        }).done(function(data){
             gameID = data.ID;
-            console.log(gameID);
-            connected = true;
             changeConnectionInfo();
+            connected = true;
+            app("MULTIPLAYER","white");
        });
 }
 
@@ -33,11 +33,9 @@ function connectToRoom(){
             url: `https://chess.thrive-dev.bitstoneint.com/wp-json/chess-api/game/${roomNumber}`,
             success: function(data){
                 gameID = data.ID;
-                console.log(gameID);
                 changeConnectionInfo();
-                getRequestBody = data;
                 connected = true;
-                app();
+                app("MULTIPLAYER","black");
             },
             error: function(data,status){
                 console.log("ERROR"+status);
@@ -53,7 +51,7 @@ setInterval(() => {
             url: `https://chess.thrive-dev.bitstoneint.com/wp-json/chess-api/game/${gameID}`,
             success: function(data){
                 gameID = data.ID;
-                movesProxy = data.moves;
+                moves = data.moves;
                 // console.log(data);
             },
             error: function(data,status){
@@ -64,13 +62,13 @@ setInterval(() => {
 }, 1000);
 
 
-var movesProxy = new Proxy(moves, {
-  set: function (target, key, value) {
-      console.log(`${key} set to ${value}`);
-      target[key] = value;
-      return true;
-  }
-});
+// var movesProxy = new Proxy(moves, {
+//   set: function (target, key, value) {
+//       console.log(`${key} set to ${value}`);
+//       target[key] = value;
+//       return true;
+//   }
+// });
 
 
 //{

@@ -243,18 +243,32 @@ class ChessPiece {
                 //its legal move, put piece on legal move selected, and delete it from where it was;
                 chessboardState[toRow][toColumn] = chessboardState[fromRow][fromCol];
                 chessboardState[fromRow][fromCol] = "0";
-                return chessboardState;
+                return {
+                    state: chessboardState,
+                    moved: true
+                };
             }
             
             if(typeof selectedAttackMove === 'undefined'){
                 console.log("No attack move found, exit");
-                return chessboardState;
+                return {
+                    state: chessboardState,
+                    moved: false
+                };
             }else{
                 //its attack move, delete piece instance of oposite team, move chesspiece; 
                 chessboardState[toRow][toColumn] = chessboardState[fromRow][fromCol];
                 chessboardState[fromRow][fromCol] = "0";
-                return chessboardState;
+                return {
+                    state: chessboardState,
+                    moved: true
+                };
             }
+        }else{
+            return {
+                state: undefined,
+                moved: false
+            };
         }
     }
 }
@@ -400,6 +414,7 @@ class Rook extends ChessPiece {
 class Pawn extends ChessPiece {
     constructor(color) {
         super(color);
+        this.firstMove = true;
     }
 
     get symbol() {
@@ -430,7 +445,7 @@ class Pawn extends ChessPiece {
         const rightSideChessbox = chesstableState[fromRow + pieceDirection][fromCol + 1];
 
         if ((fromRow + pieceDirection) >= 0 && (fromRow + pieceDirection) <= 7) {
-            if (chesstableState[fromRow + pieceDirection][fromCol] === "0") {
+            if (chesstableState[fromRow + pieceDirection][fromCol] === "0" ) {
                 if (leftSideChessbox !== "0") {
                     if (typeof leftSideChessbox !== 'undefined') {
                         if (leftSideChessbox.color !== this.color) {
@@ -446,6 +461,10 @@ class Pawn extends ChessPiece {
                     }
                 }
                 suggestedMoves.legalMoves.push([fromRow + pieceDirection, fromCol]);
+                if(this.firstMove === true){
+                    suggestedMoves.legalMoves.push([fromRow + pieceDirection*2, fromCol]);
+                    this.firstMove = false;
+                }
             } else {
                 if(typeof leftSideChessbox !== 'undefined'){
                     if (leftSideChessbox !== "0" && leftSideChessbox.color !== this.color) {
