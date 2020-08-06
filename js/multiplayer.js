@@ -17,6 +17,7 @@ function createGame(){
        }).done(function(data){
             gameID = data.ID;
             changeConnectionInfo();
+            app("MULTIPLAYER","white");
             connected = true;
        });
 }
@@ -52,6 +53,8 @@ setInterval(() => {
                 gameID = data.ID;
                 moves = data.moves;
                 // console.log(data);
+
+                $(document).trigger("test",data);
             },
             error: function(data,status){
                 console.log("ERROR"+status);

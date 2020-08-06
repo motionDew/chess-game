@@ -103,9 +103,10 @@ class Board {
         this.gameState = "";
         this.gameType = gameType;
         this.pieceMoved = false;
+        console.log(teamColor);
 
         if(gameType === "MULTIPLAYER"){
-            this.setAjaxSuccesListener();
+            this.sendDataFromApi();
             this.playerColor = teamColor;
             console.log(this.playerColor);
         }
@@ -172,11 +173,9 @@ class Board {
         this._gameState = value;
     }
 
-    setAjaxSuccesListener(){
-        $(document).ajaxSuccess(this.handleSuccess.bind(this));
-    }
-    removeAjaxSuccesListener(){
-
+    sendDataFromApi(){
+        // $(document).ajaxSuccess(this.handleSuccess.bind(this));
+        $(document).on("test",this.handleSuccess.bind(this));
     }
 
     draw() {
@@ -213,6 +212,14 @@ class Board {
 
         this.fromRow = row;
         this.fromColumn = column;
+
+        if(this.checkKing() === true){
+            const position = this.getPiecePosition("king",this.colorTurn);
+            const kingChessbox = Helper.getChessboxAt(position[0],position[1])
+            kingChessbox.toggleClass("danger");
+        }else{
+            
+        }
 
         if(currentChessPiece.color === this.colorTurn){
             this.setSuggestions(currentChessPiece);
@@ -280,11 +287,15 @@ class Board {
         Helper.removeFromClassList("danger");
     }
     init() {
-        // $(document).on("click",".chessbox",this.onSquareClick.bind(this));
+        $(document).on("click",".chessbox",this.onSquareClick.bind(this));
         $("#reset").click(this.reset.bind(this));
         $("#build-chessboard").click(this.buildChessboard.bind(this));
         $("<p id=\"turn\" class=\"center\"></p>").appendTo($("header"));
         $("#turn").text(`Now moving:${this.colorTurn}`);
+        if(this.gameType === "MULTIPLAYER"){
+            $("#player-color").remove();
+            $(`<p id=\"player-color\" class=\"center\">Your assigned team: ${this.playerColor}</p>`).appendTo($("header"));
+        }
         
         this.deleteBoard();
         this.generateBoard();
@@ -558,6 +569,7 @@ class Board {
         [null,null,null,null,null,null,null,null],
     ];  
         this.colorTurn = "white";
+        this.moveApiPiece("0","0","0","0");
         // console.log(this.currentState);
         // console.log(this.chessboardInstances);
         this.deleteBoard();
@@ -670,9 +682,7 @@ class Board {
             });
         }
     }
-    handleSuccess(event, xhr, settings){
-        if (settings.url == `https://chess.thrive-dev.bitstoneint.com/wp-json/chess-api/game/${gameID}`) {
-
+    handleSuccess(event,data){
         // console.log(this);
         //get last move
         let moves = this.getApiMoves();
@@ -707,17 +717,6 @@ class Board {
                 this.clear();
                 this.draw();
             }
-        }else{
-            // alert("Invalid request body format!");
-        }
-        //change turn
-
-        //you turn move
-
-        //send move to API
-
-        //this.getApiMoves();
-        
         }
     }
 }

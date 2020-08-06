@@ -461,9 +461,9 @@ class Pawn extends ChessPiece {
                     }
                 }
                 suggestedMoves.legalMoves.push([fromRow + pieceDirection, fromCol]);
-                if(this.firstMove === true){
+                if(fromRow === 1 || fromRow === 6){
+                    if(chesstableState[fromRow + pieceDirection*2][fromCol] === "0")
                     suggestedMoves.legalMoves.push([fromRow + pieceDirection*2, fromCol]);
-                    this.firstMove = false;
                 }
             } else {
                 if(typeof leftSideChessbox !== 'undefined'){
