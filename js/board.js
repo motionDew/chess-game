@@ -383,6 +383,8 @@ class Board {
             console.table([this.fromRow,this.fromColumn,this.toRow,this.toColumn]);
             this.moveSelectedPiece();
 
+            this.changeColorTurn();
+
             // this.currentState has only name and color attributes, not instances, so we have to sync them, with the piece instance matrix;
             this.syncAfterInstances();
             // Save current state in local storage;
