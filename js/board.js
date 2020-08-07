@@ -381,9 +381,24 @@ class Board {
             let lastSelectedPiece = this.chessboardInstances[this.fromRow][this.fromColumn];
 
             console.table([this.fromRow,this.fromColumn,this.toRow,this.toColumn]);
-            this.moveSelectedPiece();
+            
 
-            this.changeColorTurn();
+            if(this.gameType === "SINGLEPLAYER"){
+                this.moveSelectedPiece();
+                this.changeColorTurn();
+            }
+            
+            if(this.gameType === "MULTIPLAYER"){
+                if(this.playerColor === this.colorTurn){
+                    this.moveSelectedPiece();
+                    if(this.pieceMoved === true){
+                        this.sendApiMoves();
+                    }
+                }else{
+                    alert("Not your turn!");
+                    // console.log(this.playerColor);
+                }
+            }
 
             // this.currentState has only name and color attributes, not instances, so we have to sync them, with the piece instance matrix;
             this.syncAfterInstances();
@@ -401,10 +416,8 @@ class Board {
 
             this.clear();
             this.draw();
-
-            
+            }
         }
-    }
     generateBoard() {
         let chessboard = $("<div id=\"chessboard\"></div>");
 
