@@ -175,7 +175,7 @@ class Board {
 
     sendDataFromApi(){
         // $(document).ajaxSuccess(this.handleSuccess.bind(this));
-        $(document).on("test",this.handleSuccess.bind(this));
+        $(document).on("sendData",this.handleSuccess.bind(this));
     }
 
     draw() {
@@ -631,7 +631,7 @@ class Board {
 
         // sync in case player does an ilegal move;
         this.syncAfterInstances();
-
+        console.log(fromRow);
         let lastSelectedPiece = this.chessboardInstances[fromRow][fromColumn];
         if(lastSelectedPiece !== "0"){
 
