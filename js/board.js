@@ -380,7 +380,8 @@ class Board {
             this.toColumn = column;
             let lastSelectedPiece = this.chessboardInstances[this.fromRow][this.fromColumn];
 
-            this.moveSelectedPiece(lastSelectedPiece);
+            console.table([this.fromRow,this.fromColumn,this.toRow,this.toColumn]);
+            this.moveSelectedPiece();
 
             // this.currentState has only name and color attributes, not instances, so we have to sync them, with the piece instance matrix;
             this.syncAfterInstances();
