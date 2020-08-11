@@ -3,14 +3,6 @@ let timerScreen;
 let headingCount;
 const storage = window.localStorage;
 
-//Utils classes
-// class UndoCommand {
-//     constructor() {
-//         this.stateArray = [];
-//     }
-
-// }
-
 // Used to generate chessboard table with pieces and save state to storage;
 const initialBoardState = {
     0: [    {name:"rook", color: "black"},
@@ -181,28 +173,75 @@ class Board {
     draw() {
         $("#turn").text(`Now moving: ${this.colorTurn}`);
 
-        //Take every piece instance from matrix state, and put them their matching divs
-        for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 8; j++) {
+        // Take every piece instance from matrix state, and put them their matching divs
+        // for (let i = 0; i < 8; i++) {
+        //     for (let j = 0; j < 8; j++) {
 
-                //create a piece div
+        //         //create a piece div
+        //         let pieceDiv = $("<div class=\"piece\"></div>");
+        //         let chessbox = Helper.getChessboxAt(i,j);
+
+        //         if (this.chessboardInstances[i][j] !== "0") {
+        //             let piece = this.chessboardInstances[i][j];
+        //             pieceDiv.text(piece.symbol);
+        //             pieceDiv.draggable({
+        //                 revert:true,
+        //                 start: this.onStartDraggable.bind(this)
+        //             });
+        //             pieceDiv.addClass(piece.color);
+        //             chessbox.append(pieceDiv);
+        //         } else {
+        //             chessbox.text("");
+        //         }
+        //     }
+        // }
+
+
+        //At first try
+        // $(".chessbox").toArray().forEach( chessbox =>
+        //     {
+        //         let pieceDiv = $("<div class=\"piece\"></div>");
+        //         let rowData = parseInt(chessbox.dataset.rowIndex);
+        //         let columnData = parseInt(chessbox.dataset.columnIndex);
+
+        //         if(this.chessboardInstances[rowData][columnData] !== "0"){
+        //             let piece = this.chessboardInstances[rowData][columnData];
+        //             pieceDiv.text(piece.symbol);
+        //             pieceDiv.draggable({
+        //                 revert:true,
+        //                 start: this.onStartDraggable.bind(this)
+        //             });
+        //             pieceDiv.addClass(piece.color);
+        //             chessbox.append(pieceDiv);
+        //         }else {
+        //             chessbox.text("");
+        //         }
+        //     });
+
+
+        //Refactorised
+        this.chessboardInstances.forEach((rowArray,indexRow) =>{
+            rowArray.forEach((pieceInstance,indexCol) => {
                 let pieceDiv = $("<div class=\"piece\"></div>");
-                let chessbox = Helper.getChessboxAt(i,j);
+                let chessbox = Helper.getChessboxAt(indexRow,indexCol);
 
-                if (this.chessboardInstances[i][j] !== "0") {
-                    let piece = this.chessboardInstances[i][j];
-                    pieceDiv.text(piece.symbol);
+                if (pieceInstance !== "0") {
+                    pieceDiv.text(pieceInstance.symbol);
                     pieceDiv.draggable({
                         revert:true,
                         start: this.onStartDraggable.bind(this)
                     });
-                    pieceDiv.addClass(piece.color);
+                    pieceDiv.addClass(pieceInstance.color);
                     chessbox.append(pieceDiv);
-                } else {
+                }else{
                     chessbox.text("");
                 }
-            }
-        }
+            });
+        });
+
+        //TODO idea, check if instance moved;
+
+
     }
     onStartDraggable(e){
         const chessbox = e.currentTarget.parentNode;
@@ -315,10 +354,15 @@ class Board {
         $(".piece-container").append($("<div class=\"black-pieces\"></div>"));
         $(".piece-container").append($("<div class=\"white-pieces\"></div>"));
 
-        for(let i=0;i<pieceArray.length;i++){
-            $(".black-pieces").append($(`<div>${pieceArray[i].symbol}</div>`));
-            $(".white-pieces").append($(`<div>${pieceArray[i].symbol}</div>`));
-        }
+        // for(let i=0;i<pieceArray.length;i++){
+        //     $(".black-pieces").append($(`<div>${pieceArray[i].symbol}</div>`));
+        //     $(".white-pieces").append($(`<div>${pieceArray[i].symbol}</div>`));
+        // }
+     
+        pieceArray.forEach( piece => {
+            $(".black-pieces").append($(`<div>${piece.symbol}</div>`));
+            $(".white-pieces").append($(`<div>${piece.symbol}</div>`));
+        })
     }
     hasSquareSelected() {
         return (typeof this._fromRow !== 'undefined') && typeof this._fromColumn !== 'undefined';
@@ -475,17 +519,30 @@ class Board {
         this.currentState = currentStateParsed;
     }
     syncAfterInstances(){
-        for(let i=0;i<8;i++){
-            for(let j=0;j<8;j++){
-                if(this.chessboardInstances[i][j] === "0"){
-                    this.currentState[i][j].name = "EMPTY";
-                    this.currentState[i][j].color = "";
+        // for(let i=0;i<8;i++){
+        //     for(let j=0;j<8;j++){
+        //         if(this.chessboardInstances[i][j] === "0"){
+        //             this.currentState[i][j].name = "EMPTY";
+        //             this.currentState[i][j].color = "";
+        //         }else{
+        //             this.currentState[i][j].name = this.chessboardInstances[i][j].name;
+        //             this.currentState[i][j].color = this.chessboardInstances[i][j].color;
+        //         }
+        //     }
+        // }
+
+        this.chessboardInstances.forEach((rowArray,indexRow) =>{
+            rowArray.forEach((pieceInstance,indexCol) =>{
+                if(pieceInstance === "0"){
+                    this.currentState[indexRow][indexCol].name = "EMPTY";
+                    this.currentState[indexRow][indexCol].color = "";
                 }else{
-                    this.currentState[i][j].name = this.chessboardInstances[i][j].name;
-                    this.currentState[i][j].color = this.chessboardInstances[i][j].color;
+                    this.currentState[indexRow][indexCol].name = pieceInstance.name;
+                    this.currentState[indexRow][indexCol].color = pieceInstance.color;
                 }
-            }
-        }
+            });
+        });
+
     }
     syncAfterObjects(){
         this.chessboardInstances = [ [null,null,null,null,null,null,null,null],
