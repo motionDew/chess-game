@@ -3,6 +3,7 @@ let timerScreen;
 let headingCount;
 const storage = window.localStorage;
 
+
 // Used to generate chessboard table with pieces and save state to storage;
 const initialBoardState = {
     0: [    {name:"rook", color: "black"},
@@ -758,12 +759,14 @@ class Board {
     handleSuccess(event,data){
         // console.log(this);
         //get last move
-        let moves = this.getApiMoves();
         let move = moves[moves.length - 1];
         console.log(move);
         
         if(typeof move !== "undefined" ){
             
+            console.log(moves.length);
+            console.log(movesLenght);
+
             const apiColor = move.by;
             const fromRow = parseInt(move.from.x);
             const fromColumn = parseInt(move.from.y);
@@ -783,12 +786,16 @@ class Board {
 
                 // we know that the piece is moved corectly we dont have to check suggestions;
                 this.moveApiPiece(fromRow,fromColumn,toRow,toColumn);
-                this.clear();
-                this.draw();
+
             }else{
                 this.moveApiPiece(fromRow,fromColumn,toRow,toColumn);
+
+            }
+
+            if(moves.length > movesLenght){
                 this.clear();
                 this.draw();
+                movesLenght = moves.length;
             }
         }
     }
