@@ -1,4 +1,4 @@
-const Helper = {
+export const Helper = {
     getChessboxAt: function(row,column){
         // return this.getChessboxesAsArray().find(element => element.dataset.rowIndex === row.toString() && element.dataset.columnIndex === column.toString());
         return $(".chessbox[data-row-index="+row+"][data-column-index="+column+"]");
@@ -45,36 +45,8 @@ const Helper = {
         
     }
 }
-class ChesstableParser{
-    constructor(){
-
-    }
-    parse(chesstable){
-        
-    }
-}
 
 
-
-// View experience;
-
-$("#room-number").on("click",function(){
-    $(this).val("");
-});
-
-function changeConnectionInfo(){
-    $("#create").hide();
-    $("#room-number").hide();
-    $("#connect").hide();
-    $(`<p id="room" class=\"center\">Your room number is: ${gameID}</p>`).appendTo($("header"));
-}
-
-$("#start").on("click",function(){
-    $("#create").show();
-    $("#room-number").show();
-    $("#connect").show();
-    $("#room").hide();
-})
 
 
 

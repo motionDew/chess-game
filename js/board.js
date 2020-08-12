@@ -1,96 +1,90 @@
-let seconds = 3;
-let timerScreen;
-let headingCount;
-const storage = window.localStorage;
+import {storage} from './global.js';
+import {PieceFactory,ChessPiece, King, Queen, Bishop, Knight, Rook, Pawn} from './chesspieces.js';
+import {Helper} from './helper.js';
+import {gameID,moves,movesLenght} from './multiplayer.js'
+import { requestJokeAjax } from './joke.js';
 
-
-// Used to generate chessboard table with pieces and save state to storage;
-const initialBoardState = {
-    0: [    {name:"rook", color: "black"},
-            {name:"knight",color: "black"},
-            {name:"bishop", color: "black"},
-            {name:"queen", color: "black"},
-            {name: "king",color: "black"},
-            {name: "bishop",color: "black"},
-            {name: "knight",color: "black"},
-            {name: "rook",color: "black"}],
-    1: [    {name: "pawn",color: "black"},
-            {name: "pawn",color: "black"},
-            {name: "pawn",color: "black"},
-            {name: "pawn",color: "black"},
-            {name: "pawn",color: "black"},
-            {name: "pawn",color: "black"},
-            {name: "pawn",color: "black"},
-            {name: "pawn",color: "black"}],
-    2: [    {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""}],
-    3: [    {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""}],
-    4: [    {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""}],
-    5: [    {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""},
-            {name: "EMPTY",color: ""}],
-    6: [    {name: "pawn",color: "white"},
-            {name: "pawn",color: "white"},
-            {name: "pawn",color: "white"},
-            {name: "pawn",color: "white"},
-            {name: "pawn",color: "white"},
-            {name: "pawn",color: "white"},
-            {name: "pawn",color: "white"},
-            {name: "pawn",color: "white"}],
-    7:[     {name:"rook", color: "white"},
-            {name:"knight",color: "white"},
-            {name:"bishop", color: "white"},
-            {name:"queen", color: "white"},
-            {name: "king",color: "white"},
-            {name: "bishop",color: "white"},
-            {name: "knight",color: "white"},
-            {name: "rook",color: "white"}]
-}
-
-// Object containing the instances of chess pieces, generated after chessboardState
-const chessboardInstances = [ [null,null,null,null,null,null,null,null],
-                            [null,null,null,null,null,null,null,null],
-                            [null,null,null,null,null,null,null,null],
-                            [null,null,null,null,null,null,null,null],
-                            [null,null,null,null,null,null,null,null],
-                            [null,null,null,null,null,null,null,null],
-                            [null,null,null,null,null,null,null,null],
-                            [null,null,null,null,null,null,null,null],
-                        ];
-
-class Board {
+export class Board {
     constructor(gameType,teamColor) {
         if(storage.getItem("currentState") === null){
-            this.currentState = initialBoardState;
+            this.currentState = {
+                0: [    {name:"rook", color: "black"},
+                        {name:"knight",color: "black"},
+                        {name:"bishop", color: "black"},
+                        {name:"queen", color: "black"},
+                        {name: "king",color: "black"},
+                        {name: "bishop",color: "black"},
+                        {name: "knight",color: "black"},
+                        {name: "rook",color: "black"}],
+                1: [    {name: "pawn",color: "black"},
+                        {name: "pawn",color: "black"},
+                        {name: "pawn",color: "black"},
+                        {name: "pawn",color: "black"},
+                        {name: "pawn",color: "black"},
+                        {name: "pawn",color: "black"},
+                        {name: "pawn",color: "black"},
+                        {name: "pawn",color: "black"}],
+                2: [    {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""}],
+                3: [    {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""}],
+                4: [    {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""}],
+                5: [    {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""},
+                        {name: "EMPTY",color: ""}],
+                6: [    {name: "pawn",color: "white"},
+                        {name: "pawn",color: "white"},
+                        {name: "pawn",color: "white"},
+                        {name: "pawn",color: "white"},
+                        {name: "pawn",color: "white"},
+                        {name: "pawn",color: "white"},
+                        {name: "pawn",color: "white"},
+                        {name: "pawn",color: "white"}],
+                7:[     {name:"rook", color: "white"},
+                        {name:"knight",color: "white"},
+                        {name:"bishop", color: "white"},
+                        {name:"queen", color: "white"},
+                        {name: "king",color: "white"},
+                        {name: "bishop",color: "white"},
+                        {name: "knight",color: "white"},
+                        {name: "rook",color: "white"}]
+            };
         }else{
             this.getState();
         }
-        this.chessboardInstances = chessboardInstances;
+        this.chessboardInstances = [ [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+        [null,null,null,null,null,null,null,null],
+    ];;
         this.pieceFactory = new PieceFactory();
         this.colorTurn = "white";
         this.gameState = "";
@@ -703,6 +697,8 @@ class Board {
     }
     moveSelectedPiece(fromRow = this.fromRow, fromColumn = this.fromColumn, toRow = this.toRow, toColumn = this.toColumn){
 
+        requestJokeAjax();
+
         // sync in case player does an ilegal move;
         this.syncAfterInstances();
         console.log(fromRow);
@@ -793,6 +789,8 @@ class Board {
             }
 
             if(moves.length > movesLenght){
+                console.log(moves.length);
+                console.log(movesLenght);
                 this.clear();
                 this.draw();
                 movesLenght = moves.length;

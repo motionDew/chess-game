@@ -30,6 +30,12 @@ button{
     width: 80px;
     font-size: 40px;
 }
+
+.color-radio{
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 10px;
+}
 main{
     display: flex;
     padding: 20px;

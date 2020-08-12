@@ -16,12 +16,18 @@
 <body>
   <header>
     <div class="center">
-      <button id="start" onclick="app()">Start Game</button>
+      <button id="start">Start Game</button>
       <button id="build-chessboard">Build your chessboard</button>
       <button id="reset">Reset</button>
       <button id="create">Create</button>
       <input type="text" id="room-number" name="room-number" value="Room number goes here">
       <button id="connect">Connect</button>
+      <div class="color-radio">
+        <input type="radio" id="whitePlayer" name="playerColor" value="white">
+        <label for="White">White</label>
+        <input type="radio" id="blackPlayer" name="playerColor" value="black">
+        <label for="male">Black</label>
+      </div>
     </div>
 
   </header>
@@ -40,11 +46,12 @@
     </a>
   </footer>
   <!-- <button id="undo">Undo</button> -->
-  <script src="js/helper.js"></script>
-  <script src="js/board.js"></script>
-  <script src="js/multiplayer.js"></script>
-  <script src="js/joke.js"></script>
-  <script src="js/chesspieces.js"></script>
-  <script src="js/app.js"></script>
+  <script type="module" src="js/board.js"></script>
+  <script type="module" src="js/app.js"></script>
+  <script type="module" src="js/global.js"></script>
+  <script type="module" src="js/helper.js"></script>
+  <script type="module" src="js/multiplayer.js"></script>
+  <script type="module" src="js/joke.js"></script>
+  <script type="module" src="js/chesspieces.js"></script>
 </body>
 </html>

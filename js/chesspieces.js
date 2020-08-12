@@ -1,4 +1,6 @@
-class PieceFactory{
+import {Helper} from './helper.js';
+
+export class PieceFactory{
     constructor(){
     }
     create(name,color){
@@ -26,7 +28,7 @@ class PieceFactory{
     }
 }
 
-class ChessPiece {
+export class ChessPiece {
     constructor(color) {
         if (new.target === ChessPiece) {
             // throw new TypeError("Cannot construct ChessPiece instances  directly!");
@@ -273,7 +275,7 @@ class ChessPiece {
     }
 }
 
-class King extends ChessPiece {
+export class King extends ChessPiece {
     constructor(color) {
         super(color);
         this.kingNeightboursRow = [-1, -1, -1, 0, 1, 1, 1, 0];
@@ -313,7 +315,7 @@ class King extends ChessPiece {
         return suggestedMoves;
     }
 }
-class Queen extends ChessPiece {
+export class Queen extends ChessPiece {
     constructor(color) {
         super(color);
     }
@@ -338,7 +340,7 @@ class Queen extends ChessPiece {
         return queenMoves;
     }
 }
-class Bishop extends ChessPiece {
+export class Bishop extends ChessPiece {
     constructor(color) {
         super(color);
     }
@@ -354,7 +356,7 @@ class Bishop extends ChessPiece {
         return super.diagonalSuggestedMoves(chesstableState, fromRow, fromCol);
     }
 }
-class Knight extends ChessPiece {
+export class Knight extends ChessPiece {
     constructor(color) {
         super(color);
         this.knightNeightboursRow = [-2, -2, -1, 1, 2, 2, 1, -1];
@@ -396,7 +398,7 @@ class Knight extends ChessPiece {
         return suggestedMoves;
     }
 }
-class Rook extends ChessPiece {
+export class Rook extends ChessPiece {
     constructor(color) {
         super(color);
     }
@@ -411,7 +413,7 @@ class Rook extends ChessPiece {
         return super.crossSuggestedMoves(chesstableState, fromRow, fromCol);
     }
 }
-class Pawn extends ChessPiece {
+export class Pawn extends ChessPiece {
     constructor(color) {
         super(color);
         this.firstMove = true;

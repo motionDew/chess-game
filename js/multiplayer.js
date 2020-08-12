@@ -1,3 +1,5 @@
+import {changeConnectionInfo} from './global.js';
+import {app} from './app.js';
 
 $("#create").on("click",createGame);
 $("#connect").on("click",connectToRoom);
@@ -5,9 +7,9 @@ $("#connect").on("click",connectToRoom);
 //Declared in case we need to make the request without using the buttons
 let ajaxCreateGame;
 let ajaxConnect;
-let gameID;
-let moves = {};
-let movesLenght = 0;
+export let gameID;
+export let moves = {};
+export let movesLenght = 0;
 //Flag that is used to check if the game needs to make GET requests for multiplayer games;
 let connected;
 
@@ -41,8 +43,9 @@ async function createGame(gameName = 'motiondew new game' ){
     .then(data => {
         console.log(data);
         gameID = data.ID;   
+        let teamColor = $("input[type=\"radio\"]:checked").val();
+        app("MULTIPLAYER",teamColor); // starts an instance of class Board, assigning the multiplayer game type and white team color for the player;
         changeConnectionInfo(); // erases Connect button, room number input and create game button;
-        app("MULTIPLAYER","white"); // starts an instance of class Board, assigning the multiplayer game type and white team color for the player;
         connected = true; //used to allow get requests if the game type is multiplayer, set above, the game can't make requests if you're in a singleplayer game;
     })
 
@@ -79,7 +82,8 @@ function connectToRoom(){
             gameID = data.ID;
             changeConnectionInfo(); // erases Connect button, room number input and create game button
             connected = true;   
-            app("MULTIPLAYER","black"); //same as above, assigns multiplayer game type and black team color for the second player;
+            let teamColor = $("input[type=\"radio\"]:checked").val();
+            app("MULTIPLAYER",teamColor); //same as above, assigns multiplayer game type and black team color for the second player;
         }); 
     }
 }
